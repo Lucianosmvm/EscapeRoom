@@ -1,0 +1,36 @@
+{
+  "meta": { "nome": "Conteúdo 1 — Exemplo (Variáveis)" },
+  "modulos": [
+    {
+      "id": "mod1",
+      "ordem": 1,
+      "nome": "Variáveis",
+      "descricao": "Pratique declarar variáveis e exibir mensagens no console.",
+      "obrigatorias": 1
+    }
+  ],
+  "questoes": [
+    {
+      "id": "q1",
+      "moduloId": "mod1",
+      "titulo": "Computador 1 — Variáveis",
+      "enunciado": "Guarde o nome e a idade de uma pessoa e mostre no console uma linha dizendo o nome e outra dizendo a idade.",
+      "pontosBase": 10,
+      "dica1": "Pense em qual tipo de dado combina com texto e qual combina com número inteiro.",
+      "dica2": "Você vai precisar de duas variáveis e dois comandos de exibição.",
+      "dica3": "Uma linha imprime 'Meu nome é ...', a outra imprime 'Tenho ... anos'.",
+      "casos": [
+        {
+          "entrada": "nome = João, idade = 20",
+          "saidaEsperada": "meu nome é joão",
+          "modo": "contem"
+        },
+        {
+          "entrada": "nome = João, idade = 20",
+          "saidaEsperada": "tenho 20 anos",
+          "modo": "contem"
+        }
+      ]
+    }
+  ]
+}
