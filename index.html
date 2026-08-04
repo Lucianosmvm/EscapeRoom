@@ -596,13 +596,16 @@ function abrirQuestao(qId){
     </div>
   `;
   const casosDiv = document.getElementById('casosAluno');
-  casosDiv.innerHTML = q.casos.map((c,i) => `
+  casosDiv.innerHTML = q.casos.map((c,i) => {
+    const mesmoCenarioAnterior = i>0 && c.entrada && c.entrada === q.casos[i-1].entrada;
+    return `
     <div class="caso-box">
-      ${c.entrada ? `<p class="muted">Cenário: <b>${escapeHtml(c.entrada)}</b></p>` : ''}
-      <label>Cole aqui a saída que o seu programa mostrou no console:</label>
+      ${c.entrada && !mesmoCenarioAnterior ? `<p class="muted">Cenário: <b>${escapeHtml(c.entrada)}</b></p>` : ''}
+      <label>Cole aqui a saída que o seu programa mostrou no console (linha ${i+1}):</label>
       <textarea id="saidaCaso_${i}" placeholder="cole a saída do console aqui..."></textarea>
     </div>
-  `).join('');
+  `;
+  }).join('');
   det.scrollIntoView({behavior:'smooth'});
 }
 
