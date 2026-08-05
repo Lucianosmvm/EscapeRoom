@@ -1,0 +1,137 @@
+{
+  "meta": { "nome": "Conteúdo 2 — Estruturas de Controle e Tipos de Dados" },
+  "modulos": [
+    {
+      "id": "mod1",
+      "ordem": 1,
+      "nome": "Tipos de Dados",
+      "descricao": "O registro da tripulação foi corrompido. Recadastre os dados usando os tipos corretos.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod2",
+      "ordem": 2,
+      "nome": "If / Else",
+      "descricao": "O painel de acesso da porta principal precisa de uma regra de liberação.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod3",
+      "ordem": 3,
+      "nome": "Switch Case",
+      "descricao": "O console de emergência recebe comandos numéricos e precisa reagir a cada um.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod4",
+      "ordem": 4,
+      "nome": "For",
+      "descricao": "O cofre pede a sequência de códigos gerada por um laço de repetição.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod5",
+      "ordem": 5,
+      "nome": "Do While",
+      "descricao": "O gerador de energia precisa carregar, ciclo a ciclo, até atingir 100%.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod6",
+      "ordem": 6,
+      "nome": "Foreach",
+      "descricao": "A lista de tripulantes recuperada precisa ser exibida, um por um.",
+      "obrigatorias": 1
+    }
+  ],
+  "questoes": [
+    {
+      "id": "q1",
+      "moduloId": "mod1",
+      "titulo": "Estação 1 — Terminal de Diagnóstico",
+      "enunciado": "O sistema perdeu os dados de um tripulante. Declare variáveis para guardar o nome (texto), a idade (número inteiro), a altura em metros (número com casas decimais) e se ele está aprovado na missão (verdadeiro/falso). Depois exiba cada informação em uma linha, no formato 'campo: valor'.",
+      "pontosBase": 10,
+      "dica1": "Tipos: string para texto, int para número inteiro, double para número com casas decimais, bool para verdadeiro/falso.",
+      "dica2": "Use um Console.WriteLine para cada informação, uma por linha.",
+      "dica3": "Exemplo: Console.WriteLine($\"nome: {nome}\"); faça o mesmo para idade, altura e aprovado.",
+      "casos": [
+        { "entrada": "nome = Ana, idade = 28, altura = 1.65, aprovado = true", "saidaEsperada": "nome: ana", "modo": "contem" },
+        { "entrada": "nome = Ana, idade = 28, altura = 1.65, aprovado = true", "saidaEsperada": "idade: 28", "modo": "contem" },
+        { "entrada": "nome = Ana, idade = 28, altura = 1.65, aprovado = true", "saidaEsperada": "altura: 1[.,]65", "modo": "regex" },
+        { "entrada": "nome = Ana, idade = 28, altura = 1.65, aprovado = true", "saidaEsperada": "aprovado: true", "modo": "contem" }
+      ]
+    },
+    {
+      "id": "q2",
+      "moduloId": "mod2",
+      "titulo": "Estação 2 — Painel de Acesso",
+      "enunciado": "A porta principal só libera passagem para quem tem 18 anos ou mais. Guarde a idade da pessoa em uma variável e exiba 'Acesso liberado' se ela for maior ou igual a 18, ou 'Acesso negado' caso contrário.",
+      "pontosBase": 10,
+      "dica1": "Use if para testar a condição e else para o caso contrário.",
+      "dica2": "O operador >= testa 'maior ou igual'.",
+      "dica3": "if (idade >= 18) { Console.WriteLine(\"Acesso liberado\"); } else { Console.WriteLine(\"Acesso negado\"); }",
+      "casos": [
+        { "entrada": "idade = 20", "saidaEsperada": "acesso liberado", "modo": "contem" },
+        { "entrada": "idade = 15", "saidaEsperada": "acesso negado", "modo": "contem" }
+      ]
+    },
+    {
+      "id": "q3",
+      "moduloId": "mod3",
+      "titulo": "Estação 3 — Console de Emergência",
+      "enunciado": "O console recebe um número de comando e precisa reagir: 1 = 'Ativando sirene', 2 = 'Selando portas', 3 = 'Chamando socorro'. Qualquer outro valor deve exibir 'Comando desconhecido'. Use switch/case (com default para os demais casos).",
+      "pontosBase": 10,
+      "dica1": "Estrutura: switch (comando) { case 1: ... }",
+      "dica2": "Não esqueça do break; ao final de cada case.",
+      "dica3": "Use default: para tratar qualquer número que não seja 1, 2 ou 3.",
+      "casos": [
+        { "entrada": "comando = 1", "saidaEsperada": "ativando sirene", "modo": "contem" },
+        { "entrada": "comando = 2", "saidaEsperada": "selando portas", "modo": "contem" },
+        { "entrada": "comando = 3", "saidaEsperada": "chamando socorro", "modo": "contem" },
+        { "entrada": "comando = 9", "saidaEsperada": "comando desconhecido", "modo": "contem" }
+      ]
+    },
+    {
+      "id": "q4",
+      "moduloId": "mod4",
+      "titulo": "Estação 4 — Gerador de Códigos",
+      "enunciado": "Para destravar o cofre, exiba os números de 1 até 5, um por linha, usando um laço for.",
+      "pontosBase": 10,
+      "dica1": "Estrutura: for (int i = 1; i <= 5; i++)",
+      "dica2": "Dentro do for, use Console.WriteLine(i); para mostrar cada número.",
+      "dica3": "O laço começa em 1, continua enquanto i <= 5, e soma 1 a cada volta (i++).",
+      "casos": [
+        { "entrada": "", "saidaEsperada": "1[\\s\\S]*2[\\s\\S]*3[\\s\\S]*4[\\s\\S]*5", "modo": "regex" }
+      ]
+    },
+    {
+      "id": "q5",
+      "moduloId": "mod5",
+      "titulo": "Estação 5 — Gerador de Energia",
+      "enunciado": "O gerador está em 0% de carga e sobe de 20 em 20% a cada ciclo. Exiba o nível de carga a cada ciclo (0%, 20%, 40%...) usando do-while, até ultrapassar 100%. Depois do laço, exiba também 'Energia restaurada!'.",
+      "pontosBase": 15,
+      "dica1": "Comece com uma variável carga = 0.",
+      "dica2": "Estrutura: do { ... } while (condição); — o corpo roda pelo menos uma vez, mesmo antes de testar a condição.",
+      "dica3": "do { Console.WriteLine(carga + \"%\"); carga += 20; } while (carga <= 100); depois disso, escreva a mensagem final.",
+      "casos": [
+        { "entrada": "", "saidaEsperada": "0%[\\s\\S]*100%[\\s\\S]*restaurada", "modo": "regex" }
+      ]
+    },
+    {
+      "id": "q6",
+      "moduloId": "mod6",
+      "titulo": "Estação 6 — Registro da Tripulação",
+      "enunciado": "Você recuperou a lista de tripulantes: Ana, Bruno, Carla, Diego. Use foreach para percorrer a lista e exibir uma linha para cada nome, no formato 'Tripulante encontrado: NOME'.",
+      "pontosBase": 10,
+      "dica1": "Crie uma lista ou array de strings com os 4 nomes.",
+      "dica2": "Estrutura: foreach (var nome in tripulantes) { ... }",
+      "dica3": "Dentro do foreach, use Console.WriteLine($\"Tripulante encontrado: {nome}\");",
+      "casos": [
+        { "entrada": "", "saidaEsperada": "tripulante encontrado: ana", "modo": "contem" },
+        { "entrada": "", "saidaEsperada": "tripulante encontrado: bruno", "modo": "contem" },
+        { "entrada": "", "saidaEsperada": "tripulante encontrado: carla", "modo": "contem" },
+        { "entrada": "", "saidaEsperada": "tripulante encontrado: diego", "modo": "contem" }
+      ]
+    }
+  ]
+}
