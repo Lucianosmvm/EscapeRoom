@@ -1,11 +1,11 @@
 {
-  "meta": { "nome": "Conteúdo 1 — Exemplo (Variáveis)" },
+  "meta": { "nome": "Conteúdo 1 — Exemplo (Variáveis e Tipos)" },
   "modulos": [
     {
       "id": "mod1",
       "ordem": 1,
       "nome": "Variáveis",
-      "descricao": "Pratique declarar variáveis e exibir mensagens no console.",
+      "descricao": "Pratique escolher o tipo certo para cada informação e exibir os dados no console.",
       "obrigatorias": 1
     }
   ],
@@ -13,24 +13,19 @@
     {
       "id": "q1",
       "moduloId": "mod1",
-      "titulo": "Computador 1 — Variáveis",
-      "enunciado": "Guarde o nome e a idade de uma pessoa e mostre no console uma linha dizendo o nome e outra dizendo a idade.",
+      "titulo": "Computador 1 — Ficha de cadastro",
+      "enunciado": "Alguém se apresenta ao terminal:\n\n\"Olá, meu nome é João, tenho 20 anos e minha matrícula é 1042.\"\n\nCrie uma variável para cada informação, escolhendo o tipo mais adequado, e exiba uma linha por informação no formato campo: valor, usando os campos nome, idade e matricula.",
       "pontosBase": 10,
-      "dica1": "Pense em qual tipo de dado combina com texto e qual combina com número inteiro.",
-      "dica2": "Você vai precisar de duas variáveis e dois comandos de exibição.",
-      "dica3": "Uma linha imprime 'Meu nome é ...', a outra imprime 'Tenho ... anos'.",
+      "dica1": "Pense em qual tipo combina com texto e qual combina com número inteiro.",
+      "dica2": "São três variáveis e três comandos de exibição, um por linha.",
+      "dica3": "string nome = \"João\"; int idade = 20; int matricula = 1042; e depois Console.WriteLine(\"nome: \" + nome); para cada uma.",
+      "requisitos": ["tipo:string", "tipo:int", "estrutura:saida"],
       "casos": [
-        {
-          "entrada": "nome = João, idade = 20",
-          "saidaEsperada": "meu nome é joão",
-          "modo": "contem"
-        },
-        {
-          "entrada": "nome = João, idade = 20",
-          "saidaEsperada": "tenho 20 anos",
-          "modo": "contem"
-        }
-      ]
+        { "descricao": "ficha do João", "entradas": [], "saidaEsperada": "nome: joão", "modo": "contem" },
+        { "descricao": "", "entradas": [], "saidaEsperada": "idade: 20", "modo": "contem" },
+        { "descricao": "", "entradas": [], "saidaEsperada": "matricula: 1042", "modo": "contem" }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string nome = \"João\";\n        int idade = 20;\n        int matricula = 1042;\n\n        Console.WriteLine(\"nome: \" + nome);\n        Console.WriteLine(\"idade: \" + idade);\n        Console.WriteLine(\"matricula: \" + matricula);\n    }\n}"
     }
   ]
 }

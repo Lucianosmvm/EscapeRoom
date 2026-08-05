@@ -50,6 +50,7 @@ textarea{min-height:80px; resize:vertical;}
   border-radius:4px; cursor:pointer; font-weight:bold; font-size:12.5px; letter-spacing:.5px;}
 .btn:hover{filter:brightness(1.08);}
 .btn.amber{background:var(--amber);}
+.btn.cyan{background:var(--cyan); color:#04202b;}
 .btn.red{background:var(--red); color:#1a0505;}
 .btn.ghost{background:transparent; border:1px solid var(--panel-edge); color:var(--muted);}
 .btn.ghost:hover{border-color:var(--green-dim); color:var(--green);}
@@ -82,6 +83,30 @@ textarea{min-height:80px; resize:vertical;}
 .toast{position:fixed; bottom:16px; right:16px; background:var(--panel); border:1px solid var(--green); color:var(--green);
   padding:10px 16px; border-radius:5px; font-size:12.5px; z-index:999; opacity:0; transition:opacity .3s;}
 .toast.show{opacity:1;}
+
+/* ---- editor de código / console ---- */
+textarea.code{min-height:260px; font-size:13px; line-height:1.5; tab-size:4; white-space:pre; overflow-wrap:normal; overflow-x:auto;}
+.console-box{margin-top:10px; background:#03070a; border:1px solid var(--panel-edge); border-left:3px solid var(--cyan);
+  border-radius:4px; padding:10px 12px; font-size:12.5px; white-space:pre-wrap; word-break:break-word; color:#bfe9ff; min-height:34px;}
+.console-box.erro{border-left-color:var(--red); color:#ffc4ca;}
+.console-box .rot{display:block; color:var(--muted); font-size:10.5px; letter-spacing:2px; margin-bottom:6px;}
+
+.req-list{margin:10px 0 4px; padding:10px 12px; border:1px dashed var(--panel-edge); border-radius:5px;}
+.req-list .rot{color:var(--muted); font-size:10.5px; letter-spacing:2px; display:block; margin-bottom:6px;}
+.req-item{font-size:12.5px; padding:2px 0; color:var(--text);}
+.req-item.ok{color:var(--green);}
+.req-item.falta{color:var(--amber);}
+
+.cenarios{margin-top:12px;}
+.cenarios > .rot{display:block; color:var(--muted); font-size:10.5px; letter-spacing:2px;}
+.cenario{border:1px dashed var(--panel-edge); border-radius:5px; padding:8px 11px; margin-top:6px; font-size:12.5px;}
+.cenario b{color:var(--cyan);}
+.cenario.ok{border-color:var(--green);}
+.cenario.falhou{border-color:var(--red);}
+.cenario pre{margin:4px 0 0; padding:6px 8px; background:#03070a; border-radius:3px; white-space:pre-wrap;
+  font-size:12px; color:#bfe9ff; max-height:180px; overflow:auto;}
+.chip{display:inline-block; font-size:10.5px; padding:2px 7px; border-radius:3px; background:rgba(255,255,255,.05);
+  border:1px solid var(--panel-edge); color:var(--muted); margin-right:5px;}
 </style>
 </head>
 <body>
@@ -99,15 +124,36 @@ textarea{min-height:80px; resize:vertical;}
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="interpretador_csharp.js"></script>
 <script>
 /* ===================== ARMAZENAMENTO ===================== */
 const DB_KEY = 'labPerdido_conteudo_v1';
 const PROGRESS_PREFIX = 'labPerdido_progresso_';
 
+/* Normaliza o conteúdo para o formato atual (questões com requisitos + casos com
+   entradas). Conteúdos antigos usavam casos.entrada como descrição do cenário. */
+function normalizarDB(db){
+  db = db || {};
+  db.modulos = db.modulos || [];
+  db.questoes = (db.questoes || []).map(q => {
+    q.requisitos = Array.isArray(q.requisitos) ? q.requisitos : [];
+    q.gabarito = q.gabarito || '';
+    q.casos = (q.casos || []).map(c => ({
+      descricao: (c.descricao !== undefined ? c.descricao : (c.entrada || '')),
+      entradas: Array.isArray(c.entradas) ? c.entradas : [],
+      saidaEsperada: c.saidaEsperada || '',
+      modo: c.modo || 'contem',
+      rotulo: c.rotulo || ''
+    }));
+    return q;
+  });
+  return db;
+}
+
 function loadDB(){
   try{
     const raw = localStorage.getItem(DB_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return normalizarDB(JSON.parse(raw));
   }catch(e){}
   return { modulos: [], questoes: [] };
 }
@@ -117,9 +163,14 @@ function saveDB(db){
 function loadProgress(equipe){
   try{
     const raw = localStorage.getItem(PROGRESS_PREFIX + equipe);
-    if (raw) return JSON.parse(raw);
+    if (raw){
+      const p = JSON.parse(raw);
+      p.respostas = p.respostas || {};
+      p.rascunhos = p.rascunhos || {};
+      return p;
+    }
   }catch(e){}
-  return { equipe, inicio: Date.now(), pontuacao:100, dicasUsadas:0, erros:0, respostas:{} };
+  return { equipe, inicio: Date.now(), pontuacao:100, dicasUsadas:0, erros:0, respostas:{}, rascunhos:{} };
 }
 function saveProgress(p){
   localStorage.setItem(PROGRESS_PREFIX + p.equipe, JSON.stringify(p));
@@ -140,7 +191,7 @@ async function carregarConteudoRemoto(){
     const conteudo = await contResp.json();
     if (!conteudo.modulos || !conteudo.questoes) return false;
 
-    DB = conteudo;
+    DB = normalizarDB(conteudo);
     saveDB(DB); // guarda uma cópia local, serve de cache se ficar offline depois
     FONTE_CONTEUDO = { origem: 'remoto', arquivo: cfg.ativo };
     return true;
@@ -350,7 +401,7 @@ function viewProfessorQuestoes(){
   const lista = questoes.length ? questoes.map((q,i) => `
     <div class="card">
       <div class="row" style="justify-content:space-between;">
-        <div><h3>${i+1}. ${escapeHtml(q.titulo)}</h3><p class="muted">${q.casos.length} caso(s) de teste</p></div>
+        <div><h3>${i+1}. ${escapeHtml(q.titulo)}</h3><p class="muted">${agruparCasos(q).length} cenário(s) · ${q.casos.length} checagem(ns) · ${(q.requisitos||[]).length} requisito(s)${q.gabarito?' · com gabarito':''}</p></div>
         <div class="row">
           <button class="btn small ghost" onclick="ir('professor_form_questao',{moduloId:'${mod.id}', questaoId:'${q.id}'})">Editar</button>
           <button class="btn small red" onclick="excluirQuestao('${q.id}')">Excluir</button>
@@ -380,7 +431,7 @@ let CASOS_TEMP = [];
 function viewFormQuestao(){
   const editando = !!CTX.questaoId;
   const q = editando ? DB.questoes.find(x=>x.id===CTX.questaoId) : null;
-  CASOS_TEMP = q ? JSON.parse(JSON.stringify(q.casos)) : [{ entrada:'', saidaEsperada:'', modo:'contem' }];
+  CASOS_TEMP = q ? JSON.parse(JSON.stringify(q.casos)) : [{ descricao:'', entradas:[], saidaEsperada:'', modo:'contem' }];
 
   return `
     <div class="topbar">
@@ -405,10 +456,22 @@ function viewFormQuestao(){
       <input id="qDica3" type="text" value="${q ? escapeHtml(q.dica3||'') : ''}" placeholder="Dica 3 — quase a resposta" style="margin-top:6px;">
 
       <hr class="divider">
-      <h3>Casos de teste (saídas esperadas)</h3>
-      <p class="muted">Cada caso descreve um cenário (ex: "idade = 15") e a saída que o programa do aluno deveria imprimir para esse cenário. O aluno roda o código dele mesmo e cola a saída aqui.</p>
+      <h3>Requisitos do código</h3>
+      <p class="muted">Marque o que o código do aluno obrigatoriamente precisa conter. A verificação lê a estrutura do código, então qualquer nome de variável e qualquer formatação serve — o que conta é o conceito.</p>
+      <div id="reqContainer" class="grid2">${htmlCheckboxesRequisitos(q)}</div>
+
+      <hr class="divider">
+      <h3>Cenários de teste</h3>
+      <p class="muted">O código do aluno é executado de verdade em cada cenário. Se a questão pedir dados digitados (Console.ReadLine), coloque um valor por linha em "entradas do console".</p>
       <div id="casosContainer"></div>
-      <div class="row"><button class="btn ghost small" onclick="addCaso()">+ adicionar caso de teste</button></div>
+      <div class="row"><button class="btn ghost small" onclick="addCaso()">+ adicionar cenário</button></div>
+
+      <hr class="divider">
+      <h3>Gabarito (opcional, só você vê)</h3>
+      <p class="muted">Cole uma solução de referência e clique em testar: o sistema roda ela contra todos os cenários e avisa se algum caso de teste está impossível de passar.</p>
+      <textarea id="qGabarito" class="code" spellcheck="false" placeholder="using System; ...">${q ? escapeHtml(q.gabarito||'') : ''}</textarea>
+      <div class="row"><button class="btn ghost small" onclick="testarGabarito()">▶ Testar gabarito nos cenários</button></div>
+      <div class="console-box" id="gabaritoSaida"><span class="rot">RESULTADO</span>(não testado)</div>
 
       <hr class="divider">
       <div class="row">
@@ -417,28 +480,74 @@ function viewFormQuestao(){
     </div>
   `;
 }
+
+function htmlCheckboxesRequisitos(q){
+  const marcados = (q && q.requisitos) ? q.requisitos : [];
+  return Object.keys(CSharp.ROTULOS_RECURSOS).map(k => `
+    <label style="display:flex; gap:7px; align-items:flex-start; margin:3px 0; color:var(--text); font-size:12.5px;">
+      <input type="checkbox" value="${k}" ${marcados.indexOf(k)>=0?'checked':''} style="width:auto; margin-top:2px;">
+      <span>${escapeHtml(CSharp.ROTULOS_RECURSOS[k])}</span>
+    </label>`).join('');
+}
+function requisitosSelecionados(){
+  return Array.from(document.querySelectorAll('#reqContainer input[type=checkbox]'))
+    .filter(c=>c.checked).map(c=>c.value);
+}
+
 function renderCasos(){
   const c = document.getElementById('casosContainer');
   if (!c) return;
   c.innerHTML = CASOS_TEMP.map((caso,i) => `
     <div class="caso-box">
-      <div class="row" style="justify-content:space-between;"><b class="muted">Caso ${i+1}</b>
+      <div class="row" style="justify-content:space-between;"><b class="muted">Cenário ${i+1}</b>
         <button class="btn small red" onclick="removerCaso(${i})">remover</button></div>
-      <label>Cenário / entrada (mostrado ao aluno, opcional)</label>
-      <input type="text" value="${escapeHtml(caso.entrada)}" oninput="CASOS_TEMP[${i}].entrada=this.value" placeholder="Ex: idade = 15">
+      <label>Descrição do cenário (aparece para o aluno, opcional)</label>
+      <input type="text" value="${escapeHtml(caso.descricao)}" oninput="CASOS_TEMP[${i}].descricao=this.value" placeholder="Ex: gerador com carga baixa">
+      <label>Entradas do console (uma por linha — o que o aluno "digitaria"; deixe vazio se a questão não lê nada)</label>
+      <textarea oninput="CASOS_TEMP[${i}].entradas=this.value.split('\\n').filter(function(x){return x.length>0;})" placeholder="Ex:&#10;15">${escapeHtml((caso.entradas||[]).join('\n'))}</textarea>
       <label>Saída esperada</label>
       <textarea oninput="CASOS_TEMP[${i}].saidaEsperada=this.value" placeholder="Ex: Acesso negado">${escapeHtml(caso.saidaEsperada)}</textarea>
-      <label>Modo de comparação</label>
+      <label>Modo de comparação (acentos, maiúsculas, espaçamento e vírgula/ponto decimal são sempre ignorados)</label>
       <select onchange="CASOS_TEMP[${i}].modo=this.value">
-        <option value="exata" ${caso.modo==='exata'?'selected':''}>Saída exata (ignora maiúsc./espaços nas pontas)</option>
+        <option value="exata" ${caso.modo==='exata'?'selected':''}>Saída exata</option>
         <option value="contem" ${caso.modo==='contem'?'selected':''}>Saída contém este texto</option>
         <option value="regex" ${caso.modo==='regex'?'selected':''}>Expressão regular (avançado)</option>
       </select>
     </div>
   `).join('');
 }
-function addCaso(){ CASOS_TEMP.push({entrada:'', saidaEsperada:'', modo:'contem'}); renderCasos(); }
+function addCaso(){ CASOS_TEMP.push({descricao:'', entradas:[], saidaEsperada:'', modo:'contem'}); renderCasos(); }
 function removerCaso(i){ CASOS_TEMP.splice(i,1); renderCasos(); }
+
+function testarGabarito(){
+  const cod = document.getElementById('qGabarito').value;
+  const box = document.getElementById('gabaritoSaida');
+  if (!cod.replace(/\s/g,'').length){ box.className='console-box erro'; box.innerHTML = '<span class="rot">RESULTADO</span>Cole um código de gabarito primeiro.'; return; }
+
+  const analise = CSharp.analisar(cod);
+  const linhas = [];
+  if (!analise.ok){
+    box.className = 'console-box erro';
+    box.innerHTML = `<span class="rot">RESULTADO</span>O gabarito não compila${analise.linha?` (linha ${analise.linha})`:''}: ${escapeHtml(analise.erro)}`;
+    return;
+  }
+  const faltando = requisitosSelecionados().filter(r => !analise.recursos[r]);
+  if (faltando.length){
+    linhas.push('⚠ O gabarito NÃO cumpre estes requisitos marcados: ' +
+      faltando.map(r=>CSharp.ROTULOS_RECURSOS[r]||r).join('; '));
+  }
+  let falhou = false;
+  CASOS_TEMP.forEach((c,i) => {
+    if (!c.saidaEsperada.trim()){ linhas.push(`Cenário ${i+1}: sem saída esperada (ignorado).`); return; }
+    const r = CSharp.executar(cod, { entradas: (c.entradas||[]).slice() });
+    if (!r.ok){ falhou = true; linhas.push(`✖ Cenário ${i+1}: erro de execução — ${r.erro}${r.linha?` (linha ${r.linha})`:''}`); return; }
+    const ok = compararSaida(r.saida, c);
+    if (!ok) falhou = true;
+    linhas.push(`${ok?'✔':'✖'} Cenário ${i+1} — saída obtida:\n${r.saida || '(vazia)'}`);
+  });
+  box.className = 'console-box' + ((falhou||faltando.length) ? ' erro' : '');
+  box.innerHTML = '<span class="rot">RESULTADO</span>' + escapeHtml(linhas.join('\n\n'));
+}
 
 function salvarQuestao(){
   const titulo = document.getElementById('qTitulo').value.trim();
@@ -449,13 +558,15 @@ function salvarQuestao(){
   const dica3 = document.getElementById('qDica3').value.trim();
   if (!titulo || !enunciado){ toast('Preencha título e enunciado.'); return; }
   const casosValidos = CASOS_TEMP.filter(c=>c.saidaEsperada.trim().length>0);
-  if (!casosValidos.length){ toast('Adicione ao menos um caso de teste com saída esperada.'); return; }
+  if (!casosValidos.length){ toast('Adicione ao menos um cenário com saída esperada.'); return; }
+  const requisitos = requisitosSelecionados();
+  const gabarito = document.getElementById('qGabarito').value;
 
   if (CTX.questaoId){
     const q = DB.questoes.find(x=>x.id===CTX.questaoId);
-    Object.assign(q, { titulo, enunciado, pontosBase:pontos, dica1, dica2, dica3, casos:casosValidos });
+    Object.assign(q, { titulo, enunciado, pontosBase:pontos, dica1, dica2, dica3, requisitos, gabarito, casos:casosValidos });
   } else {
-    DB.questoes.push({ id: uid(), moduloId: CTX.moduloId, titulo, enunciado, pontosBase:pontos, dica1, dica2, dica3, casos:casosValidos });
+    DB.questoes.push({ id: uid(), moduloId: CTX.moduloId, titulo, enunciado, pontosBase:pontos, dica1, dica2, dica3, requisitos, gabarito, casos:casosValidos });
   }
   saveDB(DB);
   toast('Questão salva!');
@@ -579,71 +690,244 @@ function viewAlunoModulo(){
   `;
 }
 
+const MODELO_CODIGO =
+`using System;
+
+class Program
+{
+    static void Main()
+    {
+        // escreva seu código aqui
+    }
+}`;
+
 function abrirQuestao(qId){
   const q = DB.questoes.find(x=>x.id===qId);
   const det = document.getElementById('questaoDetalhe');
+  const rascunho = (PROGRESS.rascunhos && PROGRESS.rascunhos[qId]) || MODELO_CODIGO;
+
+  const grupos = agruparCasos(q);
+  const seletorCenario = grupos.length > 1 ? `
+      <label>Rodar com qual cenário?</label>
+      <select id="cenarioSel">
+        ${grupos.map((g,i)=>`<option value="${i}">Cenário ${i+1}${g.descricao?' — '+escapeHtml(g.descricao):''}${g.entradas.length?' [entrada: '+escapeHtml(g.entradas.join(' / '))+']':''}</option>`).join('')}
+      </select>` : '';
+
   det.innerHTML = `
     <div class="card" id="painelQuestao">
       <h2>${escapeHtml(q.titulo)}</h2>
-      <p>${escapeHtml(q.enunciado)}</p>
-      <div id="casosAluno"></div>
+      <p>${escapeHtml(q.enunciado).replace(/\n/g,'<br>')}</p>
+      ${htmlRequisitos(q, null)}
+      ${htmlCenarios(q, null)}
+      ${seletorCenario}
+      <label>Seu código C# — escreva no Visual Studio e cole aqui (ou digite direto)</label>
+      <textarea id="codigoAluno" class="code" spellcheck="false"
+        oninput="salvarRascunho('${q.id}')" onkeydown="tabNoEditor(event)">${escapeHtml(rascunho)}</textarea>
       <div class="row">
-        <button class="btn" onclick="verificarQuestao('${q.id}')">VERIFICAR</button>
+        <button class="btn cyan" onclick="executarCodigo('${q.id}')">▶ EXECUTAR</button>
+        <button class="btn" onclick="verificarQuestao('${q.id}')">✔ VERIFICAR</button>
         <button class="btn ghost" onclick="pedirDica('${q.id}')">💡 PEDIR DICA</button>
+        <button class="btn ghost small" onclick="limparEditor('${q.id}')">limpar</button>
       </div>
+      <p class="muted" style="margin-top:8px;">EXECUTAR roda o seu código aqui mesmo e mostra a saída — use pra testar antes de VERIFICAR. Só VERIFICAR conta tentativa.</p>
+      <div class="console-box" id="consoleSaida"><span class="rot">CONSOLE</span>(nada executado ainda)</div>
       <div class="feedback" id="fbQuestao"></div>
       <div class="hint-box" id="hintQuestao"></div>
     </div>
   `;
-  const casosDiv = document.getElementById('casosAluno');
-  casosDiv.innerHTML = q.casos.map((c,i) => {
-    const mesmoCenarioAnterior = i>0 && c.entrada && c.entrada === q.casos[i-1].entrada;
-    return `
-    <div class="caso-box">
-      ${c.entrada && !mesmoCenarioAnterior ? `<p class="muted">Cenário: <b>${escapeHtml(c.entrada)}</b></p>` : ''}
-      <label>Cole aqui a saída que o seu programa mostrou no console (linha ${i+1}):</label>
-      <textarea id="saidaCaso_${i}" placeholder="cole a saída do console aqui..."></textarea>
-    </div>
-  `;
-  }).join('');
   det.scrollIntoView({behavior:'smooth'});
 }
 
-function compararSaida(saidaAluno, caso){
-  const a = (saidaAluno||'').trim();
-  const esperado = caso.saidaEsperada.trim();
-  if (caso.modo === 'exata'){
-    return a.toLowerCase().replace(/\s+/g,' ') === esperado.toLowerCase().replace(/\s+/g,' ');
-  }
+function salvarRascunho(qId){
+  const ta = document.getElementById('codigoAluno');
+  if (!ta) return;
+  PROGRESS.rascunhos = PROGRESS.rascunhos || {};
+  PROGRESS.rascunhos[qId] = ta.value;
+  saveProgress(PROGRESS);
+}
+function limparEditor(qId){
+  if (!confirm('Apagar o código escrito e voltar ao modelo em branco?')) return;
+  document.getElementById('codigoAluno').value = MODELO_CODIGO;
+  salvarRascunho(qId);
+}
+function tabNoEditor(ev){
+  if (ev.key !== 'Tab') return;
+  ev.preventDefault();
+  const ta = ev.target;
+  ta.setRangeText('    ', ta.selectionStart, ta.selectionEnd, 'end');
+}
+
+function htmlRequisitos(q, recursos){
+  if (!q.requisitos || !q.requisitos.length) return '';
+  const itens = q.requisitos.map(r => {
+    const rot = (window.CSharp && CSharp.ROTULOS_RECURSOS[r]) || r;
+    if (!recursos) return `<div class="req-item">○ ${escapeHtml(rot)}</div>`;
+    return recursos[r]
+      ? `<div class="req-item ok">✔ ${escapeHtml(rot)}</div>`
+      : `<div class="req-item falta">✖ ${escapeHtml(rot)}</div>`;
+  }).join('');
+  return `<div class="req-list"><span class="rot">O SEU CÓDIGO PRECISA</span>${itens}</div>`;
+}
+
+/* Casos que usam as mesmas entradas viram uma execução só, com várias checagens. */
+function agruparCasos(q){
+  const grupos = [];
+  (q.casos||[]).forEach(c => {
+    const chave = JSON.stringify(c.entradas || []);
+    let g = grupos.find(x => x.chave === chave);
+    if (!g){ g = { chave, entradas: c.entradas || [], descricao: '', checks: [] }; grupos.push(g); }
+    if (!g.descricao && c.descricao) g.descricao = c.descricao;
+    g.checks.push(c);
+  });
+  return grupos;
+}
+
+function htmlCenarios(q, resultados){
+  const grupos = agruparCasos(q);
+  if (!grupos.length) return '';
+  const varios = grupos.length > 1;
+  const itens = grupos.map((g,i) => {
+    const r = resultados ? resultados[i] : null;
+    const classe = !r ? '' : (r.ok ? 'ok' : 'falhou');
+    const entradas = g.entradas.length
+      ? `<div style="margin-top:4px;"><span class="chip">digitado no console</span>${escapeHtml(g.entradas.join(' ⏎ '))}</div>` : '';
+    const lista = g.checks.map((c,j) => {
+      const ok = r && !r.erro ? r.checks[j] : null;
+      const marca = ok === null ? '○' : (ok ? '✔' : '✖');
+      const cor = ok === null ? '' : (ok ? 'style="color:var(--green)"' : 'style="color:var(--red)"');
+      const verbo = c.modo === 'exata' ? 'ser exatamente' : (c.modo === 'regex' ? 'trazer' : 'conter');
+      return `<div ${cor}>${marca} a saída precisa ${verbo}: <b>${escapeHtml(descreverEsperado(c))}</b></div>`;
+    }).join('');
+    let detalhe = '';
+    if (r){
+      detalhe = r.erro
+        ? `<div class="feedback err">⚠ ${escapeHtml(r.erro)}${r.linha?` (linha ${r.linha})`:''}</div>`
+        : `<pre>${escapeHtml(r.saida || '(nenhuma saída)')}</pre>`;
+    }
+    return `<div class="cenario ${classe}">
+        <b>${varios ? 'Cenário '+(i+1) : 'Teste'}${r ? (r.ok ? ' ✔' : ' ✖') : ''}</b>
+        ${g.descricao ? ' — ' + escapeHtml(g.descricao) : ''}
+        ${entradas}
+        <div style="margin-top:5px; font-size:12px;">${lista}</div>
+        ${detalhe}
+      </div>`;
+  }).join('');
+  return `<div class="cenarios"><span class="rot">COMO O SEU PROGRAMA SERÁ TESTADO</span>${itens}</div>`;
+}
+
+function descreverEsperado(c){
+  if (c.modo === 'regex') return c.rotulo || 'o padrão descrito no enunciado';
+  return c.saidaEsperada;
+}
+
+/* ---- comparação tolerante: ignora maiúsculas, acentos, espaçamento e vírgula/ponto decimal ---- */
+function normalizarSaida(s){
+  return (s||'')
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .toLowerCase()
+    .replace(/(\d)[,](\d)/g, '$1.$2')
+    .split('\n').map(l => l.replace(/[ \t]+/g,' ').trim()).join('\n')
+    .trim();
+}
+function semAcentos(s){ return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,''); }
+
+function compararSaida(saida, caso){
+  const a = normalizarSaida(saida);
   if (caso.modo === 'regex'){
-    try{ return new RegExp(esperado, 'i').test(a); }catch(e){ return false; }
+    try{ return new RegExp(semAcentos(caso.saidaEsperada), 'i').test(a); }
+    catch(e){ return false; }
   }
-  // contém (padrão)
-  return a.toLowerCase().includes(esperado.toLowerCase());
+  const esperado = normalizarSaida(caso.saidaEsperada);
+  if (caso.modo === 'exata') return a === esperado;
+  return a.indexOf(esperado) >= 0;
+}
+
+function rodarGrupo(codigo, grupo){
+  const r = CSharp.executar(codigo, { entradas: grupo.entradas.slice() });
+  if (!r.ok) return { ok:false, erro:r.erro, linha:r.linha, saida:'', checks: grupo.checks.map(()=>false) };
+  const checks = grupo.checks.map(c => compararSaida(r.saida, c));
+  return { ok: checks.every(Boolean), saida: r.saida, checks };
+}
+
+function executarCodigo(qId){
+  const q = DB.questoes.find(x=>x.id===qId);
+  const codigo = document.getElementById('codigoAluno').value;
+  const grupos = agruparCasos(q);
+  const sel = document.getElementById('cenarioSel');
+  const idx = sel ? parseInt(sel.value,10) : 0;
+  const grupo = grupos[idx] || { entradas: [] };
+  const box = document.getElementById('consoleSaida');
+  const r = CSharp.executar(codigo, { entradas: grupo.entradas.slice() });
+  if (!r.ok){
+    box.className = 'console-box erro';
+    box.innerHTML = `<span class="rot">ERRO AO EXECUTAR${r.linha?' — LINHA '+r.linha:''}</span>${escapeHtml(r.erro)}`;
+    return;
+  }
+  box.className = 'console-box';
+  const entr = grupo.entradas.length ? ` (entradas: ${escapeHtml(grupo.entradas.join(' ⏎ '))})` : '';
+  box.innerHTML = `<span class="rot">CONSOLE — CENÁRIO ${idx+1}${entr}</span>${escapeHtml(r.saida || '(o programa não imprimiu nada)')}`;
 }
 
 function verificarQuestao(qId){
   const q = DB.questoes.find(x=>x.id===qId);
-  let todasOk = true;
-  const erros = [];
-  q.casos.forEach((c,i) => {
-    const val = document.getElementById('saidaCaso_'+i).value;
-    const ok = val.trim().length>0 && compararSaida(val, c);
-    if (!ok){ todasOk = false; erros.push(`Caso ${i+1}${c.entrada?` (${c.entrada})`:''}: saída não confere com o esperado.`); }
-  });
+  const codigo = document.getElementById('codigoAluno').value;
   const fb = document.getElementById('fbQuestao');
-  if (todasOk){
+
+  if (!codigo.replace(/\s/g,'').length){ toast('Escreva ou cole seu código antes de verificar.'); return; }
+
+  // 1) o código compila?
+  const analise = CSharp.analisar(codigo);
+  if (!analise.ok){
+    registrarErro();
+    fb.className = 'feedback err';
+    fb.innerHTML = `⚠ Seu código não pôde ser lido${analise.linha?` (linha ${analise.linha})`:''}: ${escapeHtml(analise.erro)}`;
+    return;
+  }
+
+  // 2) requisitos de conceito
+  const faltando = (q.requisitos||[]).filter(r => !analise.recursos[r]);
+
+  // 3) execução de cada cenário
+  const grupos = agruparCasos(q);
+  const resultados = grupos.map(g => rodarGrupo(codigo, g));
+  const casosOk = resultados.every(r => r.ok);
+
+  // atualiza os painéis de requisitos e cenários com o resultado
+  const painel = document.getElementById('painelQuestao');
+  const reqDiv = painel.querySelector('.req-list');
+  if (reqDiv) reqDiv.outerHTML = htmlRequisitos(q, analise.recursos);
+  const cenDiv = painel.querySelector('.cenarios');
+  if (cenDiv) cenDiv.outerHTML = htmlCenarios(q, resultados);
+
+  if (casosOk && !faltando.length){
     PROGRESS.respostas[qId] = { ok:true, tentativas: (PROGRESS.respostas[qId]?.tentativas||0) + 1 };
     saveProgress(PROGRESS);
-    fb.innerHTML = '✔ Questão validada com sucesso!';
     fb.className = 'feedback ok';
-    setTimeout(()=> ir('aluno_modulo',{moduloId:CTX.moduloId}), 700);
-  } else {
-    PROGRESS.erros++;
-    saveProgress(PROGRESS);
-    fb.innerHTML = 'Ainda não é isso:<br>• ' + erros.join('<br>• ');
-    fb.className = 'feedback err';
+    fb.innerHTML = '✔ Código aceito! Todos os cenários passaram.';
+    setTimeout(()=> ir('aluno_modulo',{moduloId:CTX.moduloId}), 900);
+    return;
   }
+
+  registrarErro();
+  fb.className = 'feedback err';
+  const partes = [];
+  if (faltando.length){
+    partes.push('Ainda falta no seu código:<br>• ' +
+      faltando.map(r => escapeHtml(CSharp.ROTULOS_RECURSOS[r] || r)).join('<br>• '));
+  }
+  const primeiroErro = resultados.findIndex(r => r.erro);
+  if (primeiroErro >= 0){
+    partes.push(`O programa parou com erro no cenário ${primeiroErro+1} (veja acima).`);
+  } else if (!casosOk){
+    const quais = resultados.map((r,i)=> r.ok?null:(i+1)).filter(Boolean);
+    partes.push(`A saída não bateu no(s) cenário(s): ${quais.join(', ')}. Compare com o que o enunciado pede.`);
+  }
+  fb.innerHTML = partes.join('<br><br>');
+}
+
+function registrarErro(){
+  PROGRESS.erros++;
+  saveProgress(PROGRESS);
 }
 
 function pedirDica(qId){

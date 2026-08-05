@@ -1,74 +1,76 @@
 {
-  "meta": { "nome": "Conteúdo 2 — Laboratório Perdido: A Fuga" },
+  "meta": {
+    "nome": "Conteúdo 2 — Laboratório Perdido: A Fuga (código em C#)"
+  },
   "modulos": [
     {
       "id": "mod1",
       "ordem": 1,
       "nome": "1. Sala de Despertar",
-      "descricao": "Você acorda no chão do laboratório sem lembrar como chegou ali. Um terminal pisca, pedindo seu cadastro.",
+      "descricao": "Você acorda no chão do laboratório sem lembrar como chegou ali. Um terminal pisca, pedindo o cadastro de quem está na sala.",
       "obrigatorias": 1
     },
     {
       "id": "mod2",
       "ordem": 2,
       "nome": "2. Corredor A",
-      "descricao": "Identidade aceita. As luzes do corredor voltam parcialmente — falta checar o gerador de emergência.",
+      "descricao": "Identidade aceita. As luzes voltam parcialmente — o gerador de emergência precisa ser avaliado antes de seguir.",
       "obrigatorias": 1
     },
     {
       "id": "mod3",
       "ordem": 3,
       "nome": "3. Sala de Vigilância",
-      "descricao": "O console de alarme está piscando códigos. Alguém (ou algo) está mandando comandos.",
+      "descricao": "O console de alarme recebe códigos numéricos. Alguém (ou algo) está mandando comandos pela rede interna.",
       "obrigatorias": 1
     },
     {
       "id": "mod4",
       "ordem": 4,
       "nome": "4. Sala dos Geradores",
-      "descricao": "Cinco geradores precisam ser ativados em ordem pra devolver energia ao laboratório inteiro.",
+      "descricao": "Oito geradores em fila. Metade deles queimou no acidente — descubra quantos ainda respondem.",
       "obrigatorias": 1
     },
     {
       "id": "mod5",
       "ordem": 5,
       "nome": "5. Sala de Registros",
-      "descricao": "Um HD recuperado tem a lista de quem mais ficou preso no laboratório. Ninguém pode ficar de fora da busca.",
+      "descricao": "Um HD recuperado guarda a lista de quem mais ficou preso aqui. Ninguém pode ficar de fora da busca.",
       "obrigatorias": 1
     },
     {
       "id": "mod6",
       "ordem": 6,
       "nome": "6. Portão Norte",
-      "descricao": "O portão trancado só abre com o gerador auxiliar carregado até o fim.",
+      "descricao": "O portão trancado só destrava quando o gerador auxiliar completa a carga — e ele sempre roda pelo menos um ciclo.",
       "obrigatorias": 1
     },
     {
       "id": "mod7",
       "ordem": 7,
       "nome": "7. Controle Ambiental",
-      "descricao": "Do outro lado do portão: um alerta de vazamento. Os sensores da sala mostram os dados do problema.",
+      "descricao": "Do outro lado do portão: alerta de vazamento. Três sensores mandam leituras de temperatura sem parar.",
       "obrigatorias": 1
     },
     {
       "id": "mod8",
       "ordem": 8,
       "nome": "8. Corredor Contaminado",
-      "descricao": "O caminho à frente pode estar radioativo. Um sensor portátil vai decidir se dá pra passar.",
+      "descricao": "O caminho à frente pode estar radioativo. Há um traje de proteção pendurado na parede — mas ele não resolve tudo.",
       "obrigatorias": 1
     },
     {
       "id": "mod9",
       "ordem": 9,
       "nome": "9. Elevador de Emergência",
-      "descricao": "Quase lá. O elevador só tem um painel de botões numerados, sem indicação nenhuma do que fazem.",
+      "descricao": "Quase lá. O painel do elevador é uma grade de botões sem nenhuma indicação do que fazem.",
       "obrigatorias": 1
     },
     {
       "id": "mod10",
       "ordem": 10,
       "nome": "10. Portão de Saída",
-      "descricao": "A última barreira. Ela exige uma contagem regressiva completa antes de destravar.",
+      "descricao": "A última barreira. Ela exige a contagem regressiva completa — e a conferência da soma de segurança.",
       "obrigatorias": 1
     }
   ],
@@ -77,148 +79,542 @@
       "id": "q1",
       "moduloId": "mod1",
       "titulo": "Terminal de Identificação",
-      "enunciado": "O terminal pede seu cadastro pra liberar o acesso: nome, idade, altura (em metros) e se você está apto fisicamente pra continuar (verdadeiro/falso). Guarde essas informações em variáveis — escolha você mesmo o tipo mais adequado pra cada uma — e exiba cada uma em uma linha, no formato 'campo: valor'.",
+      "enunciado": "O terminal capta a voz de alguém ao seu lado:\n\n\"Olá, meu nome é Ana, tenho 20 anos, tenho altura de 1.60 e estou apta para esta tarefa.\"\n\nO sistema não guarda frases — guarda dados. Crie uma variável para cada informação dessa frase, escolhendo o tipo mais adequado para cada uma, e imprima uma linha por informação no formato campo: valor, usando exatamente estes campos: nome, idade, altura, apta. Imprima o valor da variável como ele é (não traduza o verdadeiro/falso).",
       "pontosBase": 10,
-      "dica1": "Existem tipos diferentes pra texto, número inteiro, número com casas decimais e verdadeiro/falso — pense qual combina com cada dado.",
-      "dica2": "Use um Console.WriteLine pra cada informação, uma por linha.",
-      "dica3": "Exemplo: Console.WriteLine($\"nome: {nome}\"); faça o mesmo pros outros três dados.",
+      "dica1": "São quatro informações de naturezas diferentes: um texto, uma quantidade sem casas decimais, uma medida com casas decimais e uma resposta de sim/não. Cada natureza dessas tem um tipo de variável em C#.",
+      "dica2": "Texto = string, número inteiro = int, número com casas decimais = double, verdadeiro/falso = bool. Depois é um Console.WriteLine para cada uma.",
+      "dica3": "string nome = \"Ana\"; int idade = 20; double altura = 1.60; bool apta = true; e então Console.WriteLine(\"nome: \" + nome); e assim por diante.",
+      "requisitos": [
+        "tipo:string",
+        "tipo:int",
+        "tipo:double",
+        "tipo:bool",
+        "estrutura:saida"
+      ],
       "casos": [
-        { "entrada": "nome = Ana, idade = 28, altura = 1.65, apto = true", "saidaEsperada": "nome: ana", "modo": "contem" },
-        { "entrada": "nome = Ana, idade = 28, altura = 1.65, apto = true", "saidaEsperada": "idade: 28", "modo": "contem" },
-        { "entrada": "nome = Ana, idade = 28, altura = 1.65, apto = true", "saidaEsperada": "altura: 1[.,]65", "modo": "regex" },
-        { "entrada": "nome = Ana, idade = 28, altura = 1.65, apto = true", "saidaEsperada": "apto: true", "modo": "contem" }
-      ]
+        {
+          "descricao": "ficha da Ana",
+          "entradas": [],
+          "saidaEsperada": "nome: ana",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "idade: 20",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "altura: *1[.,]6",
+          "modo": "regex",
+          "rotulo": "altura: 1,60 (ou 1.6)"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "apta: true",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string nome = \"Ana\";\n        int idade = 20;\n        double altura = 1.60;\n        bool apta = true;\n\n        Console.WriteLine(\"nome: \" + nome);\n        Console.WriteLine(\"idade: \" + idade);\n        Console.WriteLine(\"altura: \" + altura);\n        Console.WriteLine(\"apta: \" + apta);\n    }\n}"
     },
     {
       "id": "q2",
       "moduloId": "mod2",
       "titulo": "Painel do Gerador",
-      "enunciado": "O painel mostra o nível de carga do gerador de emergência. Se a carga for maior ou igual a 30, exiba 'Gerador estável, pode avançar'; caso contrário, exiba 'Carga insuficiente, aguarde recarregar'.",
+      "enunciado": "O painel do gerador de emergência pede a leitura da carga. O valor não é fixo: ele é digitado no console (um número inteiro de 0 a 100).\n\nLeia essa carga e classifique:\n• 70 ou mais → \"Gerador estável, pode avançar\"\n• de 30 a 69 → \"Carga instável, avance com cuidado\"\n• menos de 30 → \"Carga crítica, o corredor continua às escuras\"\n\nExiba apenas a mensagem da faixa correspondente.\n\nO terminal é rigoroso: o programa deve imprimir somente a linha da mensagem — nada de texto extra pedindo o valor.",
       "pontosBase": 10,
-      "dica1": "Pense numa estrutura que toma uma decisão com base numa condição (verdadeira ou falsa).",
-      "dica2": "Compare a carga com 30 usando o operador >= ('maior ou igual').",
-      "dica3": "if (carga >= 30) { Console.WriteLine(\"Gerador estável, pode avançar\"); } else { Console.WriteLine(\"Carga insuficiente, aguarde recarregar\"); }",
+      "dica1": "Console.ReadLine() devolve texto. Para comparar com números, o texto precisa virar número antes.",
+      "dica2": "São três caminhos possíveis, e só um deve acontecer: teste o maior primeiro e vá encadeando com else if.",
+      "dica3": "int carga = int.Parse(Console.ReadLine()); if (carga >= 70) { ... } else if (carga >= 30) { ... } else { ... }",
+      "requisitos": [
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:if",
+        "estrutura:else",
+        "tipo:int"
+      ],
       "casos": [
-        { "entrada": "carga = 50", "saidaEsperada": "gerador estável, pode avançar", "modo": "contem" },
-        { "entrada": "carga = 10", "saidaEsperada": "carga insuficiente, aguarde recarregar", "modo": "contem" }
-      ]
+        {
+          "descricao": "gerador em boas condições",
+          "entradas": [
+            "85"
+          ],
+          "saidaEsperada": "gerador estável, pode avançar",
+          "modo": "exata"
+        },
+        {
+          "descricao": "gerador oscilando",
+          "entradas": [
+            "45"
+          ],
+          "saidaEsperada": "carga instável, avance com cuidado",
+          "modo": "exata"
+        },
+        {
+          "descricao": "gerador quase morto",
+          "entradas": [
+            "12"
+          ],
+          "saidaEsperada": "carga crítica, o corredor continua às escuras",
+          "modo": "exata"
+        },
+        {
+          "descricao": "exatamente no limite de baixo",
+          "entradas": [
+            "30"
+          ],
+          "saidaEsperada": "carga instável, avance com cuidado",
+          "modo": "exata"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int carga = int.Parse(Console.ReadLine());\n\n        if (carga >= 70)\n            Console.WriteLine(\"Gerador estável, pode avançar\");\n        else if (carga >= 30)\n            Console.WriteLine(\"Carga instável, avance com cuidado\");\n        else\n            Console.WriteLine(\"Carga crítica, o corredor continua às escuras\");\n    }\n}"
     },
     {
       "id": "q3",
       "moduloId": "mod3",
       "titulo": "Console de Alarme",
-      "enunciado": "O console recebe um código numérico e espera uma resposta: 1 = 'Ativando sirene', 2 = 'Selando portas', 3 = 'Chamando socorro'. Qualquer outro código deve exibir 'Comando desconhecido'.",
+      "enunciado": "O console de vigilância recebe um código numérico digitado no terminal e precisa responder com a ação correspondente:\n\n1 → \"Ativando sirene\"\n2 → \"Selando portas\"\n3 → \"Chamando socorro\"\n4 → \"Desligando alarme\"\n\nQualquer outro número deve responder \"Comando desconhecido\". Como o console testa um único valor contra uma lista de possibilidades, use a estrutura de seleção múltipla do C# (não use if/else aqui).\n\nO terminal é rigoroso: o programa deve imprimir somente a linha da mensagem — nada de texto extra pedindo o valor.",
       "pontosBase": 10,
-      "dica1": "Pense numa estrutura que testa vários valores possíveis de uma mesma variável, um a um.",
-      "dica2": "Cada valor testado vira um case; sobra um default pra qualquer outro valor.",
-      "dica3": "switch (comando) { case 1: Console.WriteLine(\"Ativando sirene\"); break; case 2: ...; break; case 3: ...; break; default: Console.WriteLine(\"Comando desconhecido\"); break; }",
+      "dica1": "Existe uma estrutura feita exatamente para comparar uma mesma variável com vários valores possíveis, um rótulo para cada.",
+      "dica2": "Cada valor possível vira um case, e o que sobra cai no default. Cada bloco termina com break.",
+      "dica3": "switch (comando) { case 1: Console.WriteLine(\"Ativando sirene\"); break; ... default: Console.WriteLine(\"Comando desconhecido\"); break; }",
+      "requisitos": [
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:switch"
+      ],
       "casos": [
-        { "entrada": "comando = 1", "saidaEsperada": "ativando sirene", "modo": "contem" },
-        { "entrada": "comando = 2", "saidaEsperada": "selando portas", "modo": "contem" },
-        { "entrada": "comando = 3", "saidaEsperada": "chamando socorro", "modo": "contem" },
-        { "entrada": "comando = 9", "saidaEsperada": "comando desconhecido", "modo": "contem" }
-      ]
+        {
+          "descricao": "código 1",
+          "entradas": [
+            "1"
+          ],
+          "saidaEsperada": "ativando sirene",
+          "modo": "exata"
+        },
+        {
+          "descricao": "código 2",
+          "entradas": [
+            "2"
+          ],
+          "saidaEsperada": "selando portas",
+          "modo": "exata"
+        },
+        {
+          "descricao": "código 3",
+          "entradas": [
+            "3"
+          ],
+          "saidaEsperada": "chamando socorro",
+          "modo": "exata"
+        },
+        {
+          "descricao": "código 4",
+          "entradas": [
+            "4"
+          ],
+          "saidaEsperada": "desligando alarme",
+          "modo": "exata"
+        },
+        {
+          "descricao": "código fora da lista",
+          "entradas": [
+            "9"
+          ],
+          "saidaEsperada": "comando desconhecido",
+          "modo": "exata"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int comando = int.Parse(Console.ReadLine());\n\n        switch (comando)\n        {\n            case 1: Console.WriteLine(\"Ativando sirene\"); break;\n            case 2: Console.WriteLine(\"Selando portas\"); break;\n            case 3: Console.WriteLine(\"Chamando socorro\"); break;\n            case 4: Console.WriteLine(\"Desligando alarme\"); break;\n            default: Console.WriteLine(\"Comando desconhecido\"); break;\n        }\n    }\n}"
     },
     {
       "id": "q4",
       "moduloId": "mod4",
       "titulo": "Sequência de Ativação",
-      "enunciado": "Pra devolver energia ao laboratório, os 5 geradores precisam ser ativados em ordem. Exiba os números de 1 até 5, um por linha, representando a ativação de cada gerador.",
-      "pontosBase": 10,
-      "dica1": "Pense num laço que repete um número já conhecido de vezes, controlado por um contador.",
-      "dica2": "O contador começa em 1, testa uma condição, e aumenta a cada repetição.",
-      "dica3": "for (int i = 1; i <= 5; i++) { Console.WriteLine(i); }",
+      "enunciado": "São 8 geradores numerados de 1 a 8. O acidente queimou todos os de número par — os ímpares ainda respondem.\n\nPercorra os geradores do 1 ao 8 e, para cada um, exiba:\n• \"gerador N: ativado\" se ele for ímpar\n• \"gerador N: QUEIMADO\" se ele for par\n\nNo final, exiba \"total: X\", onde X é a quantidade de geradores que você conseguiu ativar. O total precisa ser contado pelo programa, não escrito na mão.",
+      "pontosBase": 15,
+      "dica1": "Você conhece a quantidade de repetições (8), então use um laço com contador. Dentro dele, decida o que imprimir.",
+      "dica2": "Um número é par quando o resto da divisão por 2 é zero — em C#, i % 2 == 0.",
+      "dica3": "Crie int ativados = 0; antes do laço, faça for (int i = 1; i <= 8; i++) { if (i % 2 == 0) ... else { ...; ativados++; } } e imprima o total depois do laço.",
+      "requisitos": [
+        "estrutura:for",
+        "estrutura:if",
+        "estrutura:else",
+        "estrutura:acumulador",
+        "estrutura:saida"
+      ],
       "casos": [
-        { "entrada": "", "saidaEsperada": "1[\\s\\S]*2[\\s\\S]*3[\\s\\S]*4[\\s\\S]*5", "modo": "regex" }
-      ]
+        {
+          "descricao": "varredura dos 8 geradores",
+          "entradas": [],
+          "saidaEsperada": "gerador 1: ativado",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "gerador 2: queimado",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "gerador 7: ativado",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "gerador 8: queimado",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "total: 4",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int ativados = 0;\n\n        for (int i = 1; i <= 8; i++)\n        {\n            if (i % 2 == 0)\n            {\n                Console.WriteLine($\"gerador {i}: QUEIMADO\");\n            }\n            else\n            {\n                Console.WriteLine($\"gerador {i}: ativado\");\n                ativados++;\n            }\n        }\n\n        Console.WriteLine($\"total: {ativados}\");\n    }\n}"
     },
     {
       "id": "q5",
       "moduloId": "mod5",
       "titulo": "Lista de Sobreviventes",
-      "enunciado": "O HD recuperado tem os nomes de quem mais ficou preso no laboratório: Ana, Bruno, Carla, Diego. Percorra essa lista e exiba uma linha pra cada nome, no formato 'Tripulante encontrado: NOME'.",
-      "pontosBase": 10,
-      "dica1": "Pense numa estrutura que percorre cada item de uma lista automaticamente, sem precisar controlar um índice.",
-      "dica2": "Guarde os nomes numa lista ou array de strings e percorra com essa estrutura.",
-      "dica3": "foreach (var nome in tripulantes) { Console.WriteLine($\"Tripulante encontrado: {nome}\"); }",
+      "enunciado": "O HD recuperado tem os nomes de quem mais ficou preso no laboratório: Ana, Bruno, Carla, Diego e Eva.\n\nGuarde esses nomes em uma única estrutura de dados (não em cinco variáveis separadas) e percorra essa estrutura exibindo, para cada pessoa, a linha:\n\ntripulante: NOME (N letras)\n\nonde N é a quantidade de letras do nome. No final, exiba \"total: X\" com a quantidade de tripulantes encontrados, contada pelo programa.",
+      "pontosBase": 15,
+      "dica1": "Vários valores do mesmo tipo cabem em uma coleção só — e existe um laço que percorre item por item sem você controlar índice nenhum.",
+      "dica2": "Declare string[] tripulantes = { \"Ana\", ... }; e percorra com foreach. O tamanho de um texto vem de .Length.",
+      "dica3": "foreach (string t in tripulantes) { Console.WriteLine($\"tripulante: {t} ({t.Length} letras)\"); total++; }",
+      "requisitos": [
+        "estrutura:array",
+        "estrutura:foreach",
+        "estrutura:acumulador",
+        "estrutura:saida"
+      ],
       "casos": [
-        { "entrada": "", "saidaEsperada": "tripulante encontrado: ana", "modo": "contem" },
-        { "entrada": "", "saidaEsperada": "tripulante encontrado: bruno", "modo": "contem" },
-        { "entrada": "", "saidaEsperada": "tripulante encontrado: carla", "modo": "contem" },
-        { "entrada": "", "saidaEsperada": "tripulante encontrado: diego", "modo": "contem" }
-      ]
+        {
+          "descricao": "leitura do HD",
+          "entradas": [],
+          "saidaEsperada": "tripulante: ana (3 letras)",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "tripulante: bruno (5 letras)",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "tripulante: carla (5 letras)",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "tripulante: diego (5 letras)",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "tripulante: eva (3 letras)",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "total: 5",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string[] tripulantes = { \"Ana\", \"Bruno\", \"Carla\", \"Diego\", \"Eva\" };\n        int total = 0;\n\n        foreach (string t in tripulantes)\n        {\n            Console.WriteLine($\"tripulante: {t} ({t.Length} letras)\");\n            total++;\n        }\n\n        Console.WriteLine($\"total: {total}\");\n    }\n}"
     },
     {
       "id": "q6",
       "moduloId": "mod6",
       "titulo": "Carga do Portão Norte",
-      "enunciado": "O portão está em 0% de carga e sobe de 20 em 20% a cada ciclo. Exiba o nível de carga a cada ciclo (0%, 20%, 40%...) até ultrapassar 100%, garantindo que o primeiro ciclo sempre rode. Depois do laço, exiba também 'Energia restaurada!'.",
+      "enunciado": "O gerador auxiliar do portão começa com a carga que está no painel (um número inteiro digitado no console) e ganha 15% a cada ciclo de bombeamento. O portão destrava quando a carga chega a 100% ou mais.\n\nAtenção: o mecanismo é físico — ele sempre executa pelo menos um ciclo, mesmo que a carga já esteja em 100%. Exiba uma linha por ciclo no formato:\n\nciclo N: X%\n\n(N é o número do ciclo, começando em 1; X é a carga no início daquele ciclo). Quando parar, exiba \"portão destravado após N ciclos\".",
       "pontosBase": 15,
-      "dica1": "Pense num laço que sempre executa pelo menos uma vez, testando a condição só depois de rodar o corpo.",
-      "dica2": "Some 20 à carga a cada repetição e pare quando ela ultrapassar 100.",
-      "dica3": "do { Console.WriteLine(carga + \"%\"); carga += 20; } while (carga <= 100); depois, escreva a mensagem final.",
+      "dica1": "Existe um laço que testa a condição só DEPOIS de executar o corpo — é exatamente ele que garante o \"pelo menos um ciclo\".",
+      "dica2": "do { ... } while (condição); — dentro do corpo você conta o ciclo, imprime e soma 15 à carga.",
+      "dica3": "int ciclo = 0; do { ciclo++; Console.WriteLine($\"ciclo {ciclo}: {carga}%\"); carga += 15; } while (carga < 100); e depois imprima a mensagem final.",
+      "requisitos": [
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:do",
+        "estrutura:acumulador"
+      ],
       "casos": [
-        { "entrada": "", "saidaEsperada": "0%[\\s\\S]*100%[\\s\\S]*restaurada", "modo": "regex" }
-      ]
+        {
+          "descricao": "gerador começando em 40%",
+          "entradas": [
+            "40"
+          ],
+          "saidaEsperada": "ciclo 1: 40%",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [
+            "40"
+          ],
+          "saidaEsperada": "ciclo 4: 85%",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [
+            "40"
+          ],
+          "saidaEsperada": "portão destravado após 4 ciclos",
+          "modo": "contem"
+        },
+        {
+          "descricao": "gerador já carregado (o ciclo tem que rodar mesmo assim)",
+          "entradas": [
+            "100"
+          ],
+          "saidaEsperada": "ciclo 1: 100%",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [
+            "100"
+          ],
+          "saidaEsperada": "portão destravado após 1 ciclos",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int carga = int.Parse(Console.ReadLine());\n        int ciclo = 0;\n\n        do\n        {\n            ciclo++;\n            Console.WriteLine($\"ciclo {ciclo}: {carga}%\");\n            carga += 15;\n        } while (carga < 100);\n\n        Console.WriteLine($\"portão destravado após {ciclo} ciclos\");\n    }\n}"
     },
     {
       "id": "q7",
       "moduloId": "mod7",
       "titulo": "Sensores de Vazamento",
-      "enunciado": "Do outro lado do portão, os sensores mostram: o local do vazamento, a temperatura atual (com casas decimais), o nível de oxigênio (um número inteiro, em %) e se o alarme está ativo (verdadeiro/falso). Guarde cada dado na variável de tipo mais adequado e exiba tudo, uma informação por linha, no formato 'campo: valor'.",
-      "pontosBase": 10,
-      "dica1": "De novo: um dado é texto, outro é número inteiro, outro tem casas decimais, e outro é verdadeiro/falso.",
-      "dica2": "Use um Console.WriteLine pra cada informação, uma por linha.",
-      "dica3": "Exemplo: Console.WriteLine($\"local: {local}\"); faça o mesmo pros outros três dados.",
+      "enunciado": "Três sensores de temperatura mandam suas leituras para o terminal, uma por linha (são números com casas decimais).\n\nLeia as três leituras e exiba:\n\nsoma: X\nmaior: Y\n\nonde X é a soma das três e Y é a maior delas. O programa precisa descobrir a maior sozinho, comparando as leituras — não vale imprimir um número escrito na mão.",
+      "pontosBase": 15,
+      "dica1": "Três Console.ReadLine(), e a conversão precisa aceitar casas decimais (não use int para isso).",
+      "dica2": "Para achar a maior: guarde a primeira como \"maior até agora\" e, se alguma das outras for maior, atualize essa variável.",
+      "dica3": "double maior = t1; if (t2 > maior) maior = t2; if (t3 > maior) maior = t3;",
+      "requisitos": [
+        "tipo:double",
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:if",
+        "estrutura:saida"
+      ],
       "casos": [
-        { "entrada": "local = Sala B, temperatura = 42.5, oxigenio = 68, alarme = true", "saidaEsperada": "local: sala b", "modo": "contem" },
-        { "entrada": "local = Sala B, temperatura = 42.5, oxigenio = 68, alarme = true", "saidaEsperada": "temperatura: 42[.,]5", "modo": "regex" },
-        { "entrada": "local = Sala B, temperatura = 42.5, oxigenio = 68, alarme = true", "saidaEsperada": "oxigenio: 68", "modo": "contem" },
-        { "entrada": "local = Sala B, temperatura = 42.5, oxigenio = 68, alarme = true", "saidaEsperada": "alarme: true", "modo": "contem" }
-      ]
+        {
+          "descricao": "vazamento quente na Sala B",
+          "entradas": [
+            "42.5",
+            "38",
+            "50.25"
+          ],
+          "saidaEsperada": "soma: 130[.,]75",
+          "modo": "regex",
+          "rotulo": "soma: 130,75"
+        },
+        {
+          "descricao": "",
+          "entradas": [
+            "42.5",
+            "38",
+            "50.25"
+          ],
+          "saidaEsperada": "maior: 50[.,]25",
+          "modo": "regex",
+          "rotulo": "maior: 50,25"
+        },
+        {
+          "descricao": "leituras baixas",
+          "entradas": [
+            "10.5",
+            "20.25",
+            "5.25"
+          ],
+          "saidaEsperada": "soma: 36",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [
+            "10.5",
+            "20.25",
+            "5.25"
+          ],
+          "saidaEsperada": "maior: 20[.,]25",
+          "modo": "regex",
+          "rotulo": "maior: 20,25"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        double t1 = double.Parse(Console.ReadLine());\n        double t2 = double.Parse(Console.ReadLine());\n        double t3 = double.Parse(Console.ReadLine());\n\n        double soma = t1 + t2 + t3;\n\n        double maior = t1;\n        if (t2 > maior) maior = t2;\n        if (t3 > maior) maior = t3;\n\n        Console.WriteLine($\"soma: {soma}\");\n        Console.WriteLine($\"maior: {maior}\");\n    }\n}"
     },
     {
       "id": "q8",
       "moduloId": "mod8",
       "titulo": "Sensor de Radiação",
-      "enunciado": "O sensor portátil mede o nível de radiação do corredor. Se o nível for menor que 5, exiba 'Rota segura, siga em frente'; caso contrário, exiba 'Radiação perigosa, use a rota alternativa'.",
-      "pontosBase": 10,
-      "dica1": "Pense de novo numa estrutura de decisão com base numa condição.",
-      "dica2": "Compare o nível de radiação com 5 usando o operador < ('menor que').",
-      "dica3": "if (radiacao < 5) { Console.WriteLine(\"Rota segura, siga em frente\"); } else { Console.WriteLine(\"Radiação perigosa, use a rota alternativa\"); }",
+      "enunciado": "O sensor portátil mede a radiação do corredor (número com casas decimais) e você responde se está usando o traje de proteção. O terminal lê, nesta ordem:\n\n1ª linha: o nível de radiação\n2ª linha: a letra s (com traje) ou n (sem traje)\n\nRegras de passagem:\n• radiação abaixo de 5 → \"Rota segura, siga em frente\" (com ou sem traje)\n• radiação de 5 até 10, mas SÓ com traje → \"Passagem autorizada com traje\"\n• qualquer outro caso → \"Rota bloqueada, procure outro caminho\"\n\nO segundo caso exige duas condições verdadeiras ao mesmo tempo.\n\nO terminal é rigoroso: o programa deve imprimir somente a linha da mensagem — nada de texto extra pedindo o valor.",
+      "pontosBase": 15,
+      "dica1": "Duas condições que precisam valer juntas se combinam com um operador lógico \"E\".",
+      "dica2": "Em C#, \"E\" é && . Compare o texto lido com \"s\" usando ==.",
+      "dica3": "if (radiacao < 5) { ... } else if (radiacao <= 10 && traje == \"s\") { ... } else { ... }",
+      "requisitos": [
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:if",
+        "estrutura:else",
+        "estrutura:logico"
+      ],
       "casos": [
-        { "entrada": "radiacao = 2", "saidaEsperada": "rota segura, siga em frente", "modo": "contem" },
-        { "entrada": "radiacao = 8", "saidaEsperada": "radiação perigosa, use a rota alternativa", "modo": "contem" }
-      ]
+        {
+          "descricao": "corredor limpo, sem traje",
+          "entradas": [
+            "2",
+            "n"
+          ],
+          "saidaEsperada": "rota segura, siga em frente",
+          "modo": "exata"
+        },
+        {
+          "descricao": "radiação média, com traje",
+          "entradas": [
+            "7",
+            "s"
+          ],
+          "saidaEsperada": "passagem autorizada com traje",
+          "modo": "exata"
+        },
+        {
+          "descricao": "radiação média, sem traje",
+          "entradas": [
+            "7",
+            "n"
+          ],
+          "saidaEsperada": "rota bloqueada, procure outro caminho",
+          "modo": "exata"
+        },
+        {
+          "descricao": "radiação altíssima, mesmo com traje",
+          "entradas": [
+            "12.5",
+            "s"
+          ],
+          "saidaEsperada": "rota bloqueada, procure outro caminho",
+          "modo": "exata"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        double radiacao = double.Parse(Console.ReadLine());\n        string traje = Console.ReadLine();\n\n        if (radiacao < 5)\n            Console.WriteLine(\"Rota segura, siga em frente\");\n        else if (radiacao <= 10 && traje == \"s\")\n            Console.WriteLine(\"Passagem autorizada com traje\");\n        else\n            Console.WriteLine(\"Rota bloqueada, procure outro caminho\");\n    }\n}"
     },
     {
       "id": "q9",
       "moduloId": "mod9",
       "titulo": "Painel do Elevador",
-      "enunciado": "O elevador tem botões numerados sem indicação nenhuma. Baseado no número apertado, exiba: 1 = 'Subindo para o nível de manutenção', 2 = 'Subindo para o nível principal', 3 = 'Subindo direto para a saída'. Qualquer outro número deve exibir 'Andar inválido'.",
-      "pontosBase": 10,
-      "dica1": "De novo: pense numa estrutura que testa vários valores possíveis de uma mesma variável.",
-      "dica2": "Cada botão vira um case; sobra um default pra qualquer número que não seja 1, 2 ou 3.",
-      "dica3": "switch (botao) { case 1: ...; break; case 2: ...; break; case 3: ...; break; default: Console.WriteLine(\"Andar inválido\"); break; }",
+      "enunciado": "O painel do elevador é uma grade de botões: 3 linhas por 3 colunas, sem nenhuma etiqueta. Para mapear o painel você precisa varrer a grade inteira, linha por linha.\n\nExiba uma linha para cada botão, no formato:\n\nbotao L-C\n\n(L = número da linha, C = número da coluna, separados por um hífen), percorrendo a linha 1 inteira antes de passar para a linha 2. No final, exiba \"total de botoes: X\" com a contagem feita pelo programa.",
+      "pontosBase": 20,
+      "dica1": "Uma grade tem duas dimensões: para cada linha, você precisa passar por todas as colunas. Isso pede um laço dentro do outro.",
+      "dica2": "O laço de fora controla a linha; o de dentro, a coluna. O de dentro roda inteiro a cada volta do de fora.",
+      "dica3": "for (int linha = 1; linha <= 3; linha++) { for (int coluna = 1; coluna <= 3; coluna++) { Console.WriteLine($\"botao {linha}-{coluna}\"); total++; } }",
+      "requisitos": [
+        "estrutura:for",
+        "estrutura:aninhado",
+        "estrutura:acumulador",
+        "estrutura:saida"
+      ],
       "casos": [
-        { "entrada": "botao = 1", "saidaEsperada": "subindo para o nível de manutenção", "modo": "contem" },
-        { "entrada": "botao = 2", "saidaEsperada": "subindo para o nível principal", "modo": "contem" },
-        { "entrada": "botao = 3", "saidaEsperada": "subindo direto para a saída", "modo": "contem" },
-        { "entrada": "botao = 7", "saidaEsperada": "andar inválido", "modo": "contem" }
-      ]
+        {
+          "descricao": "mapeamento da grade 3x3",
+          "entradas": [],
+          "saidaEsperada": "botao 1-1",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "botao 2-3",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "botao 3-3",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "botao 1-1[\\s\\S]*botao 1-3[\\s\\S]*botao 2-1[\\s\\S]*botao 3-3",
+          "modo": "regex",
+          "rotulo": "os botões na ordem: linha 1 inteira, depois a 2, depois a 3"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "total de botoes: 9",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int total = 0;\n\n        for (int linha = 1; linha <= 3; linha++)\n        {\n            for (int coluna = 1; coluna <= 3; coluna++)\n            {\n                Console.WriteLine($\"botao {linha}-{coluna}\");\n                total++;\n            }\n        }\n\n        Console.WriteLine($\"total de botoes: {total}\");\n    }\n}"
     },
     {
       "id": "q10",
       "moduloId": "mod10",
       "titulo": "Contagem Regressiva Final",
-      "enunciado": "O portão de saída exige uma contagem regressiva de 10 até 1, um número por linha. Ao final da contagem, exiba também 'Portão aberto! Vocês escaparam do Laboratório Perdido!'.",
-      "pontosBase": 15,
-      "dica1": "Pense de novo num laço controlado por contador — mas dessa vez ele precisa diminuir, não aumentar.",
-      "dica2": "O contador começa em 10, continua enquanto for maior ou igual a 1, e diminui 1 a cada repetição.",
-      "dica3": "for (int i = 10; i >= 1; i--) { Console.WriteLine(i); } depois, escreva a mensagem final.",
+      "enunciado": "A última barreira exige duas coisas ao mesmo tempo: a contagem regressiva e a soma de segurança.\n\nLeia do console o número em que a contagem começa. Depois exiba, um por linha, todos os números daquele valor até 1 (em ordem decrescente). Enquanto conta, some todos esses números.\n\nNo final, exiba:\n\nsoma: X\nPortão aberto! Vocês escaparam do Laboratório Perdido!\n\nA soma tem que ser calculada pelo programa durante a contagem.",
+      "pontosBase": 20,
+      "dica1": "É um laço com contador, como o dos geradores — mas o contador diminui em vez de aumentar.",
+      "dica2": "Comece no valor lido, continue enquanto for maior ou igual a 1, e use i-- para descer. Guarde uma variável de soma fora do laço.",
+      "dica3": "int soma = 0; for (int i = inicio; i >= 1; i--) { Console.WriteLine(i); soma += i; } e depois imprima a soma e a mensagem final.",
+      "requisitos": [
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:for",
+        "estrutura:acumulador",
+        "estrutura:saida"
+      ],
       "casos": [
-        { "entrada": "", "saidaEsperada": "10[\\s\\S]*9[\\s\\S]*8[\\s\\S]*7[\\s\\S]*6[\\s\\S]*5[\\s\\S]*4[\\s\\S]*3[\\s\\S]*2[\\s\\S]*1[\\s\\S]*portão aberto", "modo": "regex" }
-      ]
+        {
+          "descricao": "contagem a partir de 10",
+          "entradas": [
+            "10"
+          ],
+          "saidaEsperada": "10[\\s\\S]*9[\\s\\S]*8[\\s\\S]*7[\\s\\S]*6[\\s\\S]*5[\\s\\S]*4[\\s\\S]*3[\\s\\S]*2[\\s\\S]*1",
+          "modo": "regex",
+          "rotulo": "os números de 10 até 1, em ordem decrescente"
+        },
+        {
+          "descricao": "",
+          "entradas": [
+            "10"
+          ],
+          "saidaEsperada": "soma: 55",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [
+            "10"
+          ],
+          "saidaEsperada": "portão aberto! vocês escaparam do laboratório perdido!",
+          "modo": "contem"
+        },
+        {
+          "descricao": "contagem a partir de 5",
+          "entradas": [
+            "5"
+          ],
+          "saidaEsperada": "soma: 15",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int inicio = int.Parse(Console.ReadLine());\n        int soma = 0;\n\n        for (int i = inicio; i >= 1; i--)\n        {\n            Console.WriteLine(i);\n            soma += i;\n        }\n\n        Console.WriteLine($\"soma: {soma}\");\n        Console.WriteLine(\"Portão aberto! Vocês escaparam do Laboratório Perdido!\");\n    }\n}"
     }
   ]
 }
