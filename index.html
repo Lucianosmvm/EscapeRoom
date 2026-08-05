@@ -105,6 +105,14 @@ textarea.code{min-height:260px; font-size:13px; line-height:1.5; tab-size:4; whi
 .cenario.falhou{border-color:var(--red);}
 .cenario pre{margin:4px 0 0; padding:6px 8px; background:#03070a; border-radius:3px; white-space:pre-wrap;
   font-size:12px; color:#bfe9ff; max-height:180px; overflow:auto;}
+.chaveiro{margin:-4px 0 16px; padding:10px 12px; border:1px solid var(--panel-edge); border-radius:6px;
+  background:linear-gradient(180deg, rgba(255,179,64,.06), transparent);}
+.chaveiro .rot{display:block; color:var(--amber); font-size:10.5px; letter-spacing:2.5px; margin-bottom:7px;}
+.chaveiro .chaves{display:flex; flex-wrap:wrap; gap:6px;}
+.chave{font-size:11.5px; padding:4px 9px; border-radius:3px; border:1px dashed var(--panel-edge); color:var(--muted);}
+.chave.ok{border-style:solid; border-color:var(--amber); color:var(--amber); background:rgba(255,179,64,.08);}
+.chave.ok b{color:var(--text);}
+
 .chip{display:inline-block; font-size:10.5px; padding:2px 7px; border-radius:3px; background:rgba(255,255,255,.05);
   border:1px solid var(--panel-edge); color:var(--muted); margin-right:5px;}
 </style>
@@ -143,7 +151,8 @@ function normalizarDB(db){
       entradas: Array.isArray(c.entradas) ? c.entradas : [],
       saidaEsperada: c.saidaEsperada || '',
       modo: c.modo || 'contem',
-      rotulo: c.rotulo || ''
+      rotulo: c.rotulo || '',
+      oficial: !!c.oficial
     }));
     return q;
   });
@@ -618,7 +627,8 @@ function statsHeader(){
       <span class="pill">★ ${PROGRESS.pontuacao} pts</span>
       <span class="pill">💡 ${PROGRESS.dicasUsadas} dicas usadas</span>
       <span class="pill">❌ ${PROGRESS.erros} erros</span>
-    </div>`;
+    </div>
+    ${htmlChaveiro()}`;
 }
 
 function viewAluno(){
@@ -775,11 +785,40 @@ function agruparCasos(q){
   (q.casos||[]).forEach(c => {
     const chave = JSON.stringify(c.entradas || []);
     let g = grupos.find(x => x.chave === chave);
-    if (!g){ g = { chave, entradas: c.entradas || [], descricao: '', checks: [] }; grupos.push(g); }
+    if (!g){ g = { chave, entradas: c.entradas || [], descricao: '', checks: [], oficial:false }; grupos.push(g); }
     if (!g.descricao && c.descricao) g.descricao = c.descricao;
+    if (c.oficial) g.oficial = true;
     g.checks.push(c);
   });
   return grupos;
+}
+
+/* ---- chaveiro: o cenário "oficial" de cada questão é o que rende a chave da história ---- */
+function indiceCenarioOficial(grupos){
+  const i = grupos.findIndex(g => g.oficial);
+  return i >= 0 ? i : 0;
+}
+function extrairChaves(saida){
+  const achadas = {};
+  const re = /chave\s*(\d+)\s*:\s*(-?\d+)/gi;
+  let m;
+  while ((m = re.exec(saida || '')) !== null) achadas[m[1]] = m[2];
+  return achadas;
+}
+function htmlChaveiro(){
+  const total = (DB.meta && DB.meta.chaveiro && DB.meta.chaveiro.total) || 0;
+  if (!total) return '';
+  const rotulo = (DB.meta.chaveiro.rotulo) || 'CHAVES COLETADAS';
+  const tenho = PROGRESS.chaves || {};
+  const qtd = Object.keys(tenho).length;
+  const slots = [];
+  for (let n = 1; n <= total; n++){
+    slots.push(tenho[n] !== undefined
+      ? `<span class="chave ok">🔑 ${n}: <b>${escapeHtml(String(tenho[n]))}</b></span>`
+      : `<span class="chave">🔒 ${n}</span>`);
+  }
+  return `<div class="chaveiro"><span class="rot">${escapeHtml(rotulo)} — ${qtd}/${total}</span>
+    <div class="chaves">${slots.join('')}</div></div>`;
 }
 
 function htmlCenarios(q, resultados){
@@ -901,10 +940,19 @@ function verificarQuestao(qId){
 
   if (casosOk && !faltando.length){
     PROGRESS.respostas[qId] = { ok:true, tentativas: (PROGRESS.respostas[qId]?.tentativas||0) + 1 };
+
+    // registra no chaveiro a chave produzida pelo cenário oficial da questão
+    const oficial = resultados[indiceCenarioOficial(grupos)];
+    const novas = oficial ? extrairChaves(oficial.saida) : {};
+    PROGRESS.chaves = PROGRESS.chaves || {};
+    Object.keys(novas).forEach(n => { PROGRESS.chaves[n] = novas[n]; });
     saveProgress(PROGRESS);
+
     fb.className = 'feedback ok';
-    fb.innerHTML = '✔ Código aceito! Todos os cenários passaram.';
-    setTimeout(()=> ir('aluno_modulo',{moduloId:CTX.moduloId}), 900);
+    const ganhas = Object.keys(novas);
+    fb.innerHTML = '✔ Código aceito! Todos os cenários passaram.' +
+      (ganhas.length ? `<br>🔑 <b>CHAVE ${ganhas[0]} REGISTRADA: ${escapeHtml(novas[ganhas[0]])}</b>` : '');
+    setTimeout(()=> ir('aluno_modulo',{moduloId:CTX.moduloId}), ganhas.length ? 1600 : 900);
     return;
   }
 

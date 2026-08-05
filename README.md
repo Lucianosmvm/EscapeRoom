@@ -78,6 +78,22 @@ Pelo painel do professor (senha `semsenha`) ou editando o JSON direto. Formato d
 - **Sempre ignorado na comparação**: maiúsculas/minúsculas, acentos, espaços extras e vírgula vs. ponto decimal (`1,60` = `1.60`). Ou seja, o aluno não é reprovado por acento ou pela cultura do Windows.
 - **`gabarito`**: solução de referência, só o professor vê. O botão **"Testar gabarito nos cenários"** roda ela contra todos os casos e avisa se algum cenário está impossível de passar ou se o próprio gabarito não cumpre os requisitos marcados. Use sempre antes de publicar uma questão nova.
 
+## Chaveiro (progressão gamificada)
+
+O `conteudo_2.json` é uma campanha: cada sala devolve uma **chave numérica** que o programa do aluno precisa *calcular* (não digitar), e o desafio final só abre com as nove juntas.
+
+Para ativar isso em um conteúdo, basta:
+
+```json
+"meta": { "nome": "...", "chaveiro": { "total": 9, "rotulo": "CHAVEIRO DO LABORATÓRIO" } }
+```
+
+A plataforma então mostra o chaveiro no topo da tela do aluno (`🔑 3: 33` / `🔒 4`) e, toda vez que uma questão é aceita, procura na saída do programa qualquer linha no formato `CHAVE N: valor` e guarda esse valor no slot N. Se o conteúdo não tiver `meta.chaveiro`, nada disso aparece.
+
+Quando uma questão tem vários cenários, marque com `"oficial": true` o caso cuja execução conta como a "história oficial" — é dele que a chave é extraída. Sem marcação, vale o primeiro cenário.
+
+As nove chaves do conteúdo 2 são `23, 8, 33, 16, 21, 4, 50, 1, 9` (soma 165, maior 50) — é exatamente o que a fase 10 exige. Se você alterar o cálculo de alguma fase, ajuste também a lista e a soma do desafio final, e rode o "Testar gabarito" das duas questões.
+
 ### Requisitos disponíveis
 
 Tipos: `tipo:int`, `tipo:double`, `tipo:string`, `tipo:bool`, `tipo:char`.
