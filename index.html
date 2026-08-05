@@ -221,6 +221,12 @@ let CATALOGO = null; // [{arquivo, codigo, nome, dados}] — montado sob demanda
 
 function normalizarCodigo(c){ return (c || '').trim().toUpperCase().replace(/\s+/g,''); }
 
+/* Só dá para cobrar o código quando a plataforma consegue procurar os conteúdos
+   (site publicado). Aberta como arquivo local, ela cai no conteúdo do navegador. */
+function podeExigirCodigo(){
+  return CONFIG.exigirCodigo && CONFIG.conteudos.length > 0;
+}
+
 async function carregarConfig(){
   try{
     const resp = await fetch('config.json', { cache: 'no-store' });
@@ -228,6 +234,9 @@ async function carregarConfig(){
     const cfg = await resp.json();
     CONFIG = {
       ativo: cfg.ativo || null,
+      // por padrão o aluno só entra com o código do desafio;
+      // ponha "exigirCodigo": false no config.json para liberar a entrada direta no "ativo"
+      exigirCodigo: cfg.exigirCodigo !== false,
       conteudos: Array.isArray(cfg.conteudos) ? cfg.conteudos : (cfg.ativo ? [cfg.ativo] : [])
     };
     if (CONFIG.ativo && !CONFIG.conteudos.some(c => (typeof c === 'string' ? c : c.arquivo) === CONFIG.ativo)){
@@ -701,14 +710,17 @@ function viewAlunoLogin(){
           <input id="loginEquipe" type="text" placeholder="Ex: Equipe Byte">
         </div>
         <div>
-          <label>Código do desafio (o professor passa na aula)</label>
+          <label>Código do desafio${podeExigirCodigo() ? ' (obrigatório — o professor passa na aula)' : ' (opcional)'}</label>
           <input id="loginCodigo" type="text" placeholder="Ex: OMEGA2048" style="text-transform:uppercase;"
+            value="${escapeHtml(localStorage.getItem(CODIGO_KEY) || '')}"
             onkeydown="if(event.key==='Enter') entrarComoAluno();">
         </div>
       </div>
       <div class="row"><button class="btn" onclick="entrarComoAluno()">Entrar</button></div>
       <div class="feedback" id="fbLogin"></div>
-      <p class="muted" style="margin-top:10px;">Deixe o código em branco para entrar no desafio que já está aberto${FONTE_CONTEUDO.arquivo ? ` (<b>${escapeHtml((DB.meta&&DB.meta.nome)||FONTE_CONTEUDO.arquivo)}</b>)` : ''}. Seu progresso fica salvo neste computador com o nome da equipe, separado por desafio — use sempre o mesmo nome pra continuar de onde parou.</p>
+      <p class="muted" style="margin-top:10px;">${podeExigirCodigo()
+        ? 'Sem o código do desafio não dá para entrar — é ele que diz qual missão a sua turma vai jogar.'
+        : 'Sem código, você entra no desafio que já está aberto neste navegador.'} Seu progresso fica salvo neste computador com o nome da equipe, separado por desafio — use sempre o mesmo nome pra continuar de onde parou.</p>
       <hr class="divider">
       <p class="muted">Já tem um arquivo de progresso salvo (de outro dia ou de outro computador)? Carregue aqui — ele traz as fases resolvidas, as chaves, a pontuação e todo o código que você já tinha escrito.</p>
       <div class="row">
@@ -738,9 +750,14 @@ async function entrarComoAluno(){
       return;
     }
     toast('Desafio carregado: ' + r.conteudo.nome);
-  } else if (!FONTE_CONTEUDO.arquivo && !DB.modulos.length){
+  } else if (podeExigirCodigo()){
     fb.className = 'feedback err';
-    fb.innerHTML = '⚠ Nenhum desafio aberto no momento — peça o código ao professor.';
+    fb.innerHTML = '⚠ Digite o código do desafio. É o professor quem passa esse código na aula.';
+    document.getElementById('loginCodigo').focus();
+    return;
+  } else if (!DB.modulos.length){
+    fb.className = 'feedback err';
+    fb.innerHTML = '⚠ Nenhum desafio disponível neste navegador.';
     return;
   }
 

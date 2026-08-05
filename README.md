@@ -45,10 +45,11 @@ Códigos que já vêm prontos: `EXEMPLO` (conteúdo 1), `NOVECHAVES` (conteúdo 
 ```
 
 Como funciona na prática:
-- **Com código** → o aluno entra naquele desafio, seja ele qual for.
-- **Sem código** → entra no `ativo`. Se você quiser obrigar o código, é só tirar o `ativo` do `config.json`.
+- **O código é obrigatório para o aluno.** Apertar "Entrar" com o campo vazio não passa: a plataforma pede o código. O painel do professor não precisa de código.
 - Maiúsculas, minúsculas e espaços são ignorados: `omega 2048` abre o mesmo desafio que `OMEGA2048`.
-- O código fica lembrado no navegador: quem recarrega a página continua no mesmo desafio, sem redigitar.
+- O código fica lembrado no navegador e volta preenchido na próxima vez — quem já entrou uma vez naquele computador só clica em "Entrar".
+- Se você quiser o comportamento antigo (entrar sem código, caindo no `ativo`), acrescente `"exigirCodigo": false` ao `config.json`.
+- O `ativo` continua servindo de padrão para o painel do professor e para o modo offline.
 - **O progresso é separado por desafio.** A mesma equipe pode estar na missão 7 do ÔMEGA e na fase 2 das Nove Chaves ao mesmo tempo, sem um sobrescrever o outro. Progresso salvo antes desta versão é migrado sozinho na primeira entrada.
 
 Turmas diferentes com desafios diferentes ao mesmo tempo: basta dar códigos diferentes para cada uma. Não precisa mexer no `config.json` entre uma aula e outra.
