@@ -4,7 +4,8 @@
     "chaveiro": {
       "total": 9,
       "rotulo": "CHAVEIRO DO LABORATÓRIO"
-    }
+    },
+    "codigo": "NOVECHAVES"
   },
   "modulos": [
     {

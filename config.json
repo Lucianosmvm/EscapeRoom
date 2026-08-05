@@ -1,3 +1,8 @@
 {
-  "ativo": "conteudo_2.json"
+  "ativo": "conteudo_2.json",
+  "conteudos": [
+    "conteudo_1.json",
+    "conteudo_2.json",
+    "conteudo_3.json"
+  ]
 }

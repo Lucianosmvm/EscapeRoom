@@ -169,43 +169,142 @@ function loadDB(){
 function saveDB(db){
   localStorage.setItem(DB_KEY, JSON.stringify(db));
 }
+/* O progresso é guardado por conteúdo: a mesma equipe pode jogar dois desafios
+   diferentes sem que um sobrescreva o outro. */
+function chaveProgresso(equipe, arquivo){
+  return PROGRESS_PREFIX + (arquivo || FONTE_CONTEUDO.arquivo || 'local') + '::' + equipe;
+}
+function ajustarProgresso(p){
+  p.respostas = p.respostas || {};
+  p.rascunhos = p.rascunhos || {};
+  p.chaves = p.chaves || {};
+  if (p.tempoAcumulado === undefined) p.tempoAcumulado = 0;
+  p.inicio = Date.now(); // recomeça a contagem desta sessão
+  return p;
+}
 function loadProgress(equipe){
   try{
-    const raw = localStorage.getItem(PROGRESS_PREFIX + equipe);
-    if (raw){
-      const p = JSON.parse(raw);
-      p.respostas = p.respostas || {};
-      p.rascunhos = p.rascunhos || {};
+    const raw = localStorage.getItem(chaveProgresso(equipe));
+    if (raw) return ajustarProgresso(JSON.parse(raw));
+    // progresso salvo antes de existirem códigos de acesso (chave sem o conteúdo)
+    const antigo = localStorage.getItem(PROGRESS_PREFIX + equipe);
+    if (antigo && FONTE_CONTEUDO.arquivo && CONFIG.ativo === FONTE_CONTEUDO.arquivo){
+      const p = ajustarProgresso(JSON.parse(antigo));
+      p.conteudo = FONTE_CONTEUDO.arquivo;
+      localStorage.setItem(chaveProgresso(equipe), JSON.stringify(p));
+      localStorage.removeItem(PROGRESS_PREFIX + equipe);
       return p;
     }
   }catch(e){}
-  return { equipe, inicio: Date.now(), pontuacao:100, dicasUsadas:0, erros:0, respostas:{}, rascunhos:{} };
+  return { equipe, conteudo: FONTE_CONTEUDO.arquivo || null, inicio: Date.now(), tempoAcumulado:0,
+           pontuacao:100, dicasUsadas:0, erros:0, respostas:{}, rascunhos:{}, chaves:{} };
 }
+/* O tempo é acumulado a cada gravação: assim a equipe pode fechar o navegador,
+   voltar dias depois (ou continuar de um arquivo salvo) sem inflar o cronômetro. */
 function saveProgress(p){
-  localStorage.setItem(PROGRESS_PREFIX + p.equipe, JSON.stringify(p));
+  const agora = Date.now();
+  p.tempoAcumulado = (p.tempoAcumulado || 0) + (agora - (p.inicio || agora));
+  p.inicio = agora;
+  p.conteudo = p.conteudo || FONTE_CONTEUDO.arquivo || null;
+  localStorage.setItem(chaveProgresso(p.equipe, p.conteudo), JSON.stringify(p));
+}
+function tempoDecorrido(p){
+  const ms = (p.tempoAcumulado || 0) + (Date.now() - (p.inicio || Date.now()));
+  const seg = Math.floor(ms / 1000);
+  return { m: String(Math.floor(seg/60)).padStart(2,'0'), s: String(seg%60).padStart(2,'0') };
 }
 
-/* Tenta carregar config.json + o conteúdo ativo apontado por ele.
+/* ===================== CONTEÚDOS E CÓDIGOS DE ACESSO ===================== */
+const CODIGO_KEY = 'labPerdido_codigo_atual';
+let CONFIG = { ativo: null, conteudos: [] };
+let CATALOGO = null; // [{arquivo, codigo, nome, dados}] — montado sob demanda
+
+function normalizarCodigo(c){ return (c || '').trim().toUpperCase().replace(/\s+/g,''); }
+
+async function carregarConfig(){
+  try{
+    const resp = await fetch('config.json', { cache: 'no-store' });
+    if (!resp.ok) return false;
+    const cfg = await resp.json();
+    CONFIG = {
+      ativo: cfg.ativo || null,
+      conteudos: Array.isArray(cfg.conteudos) ? cfg.conteudos : (cfg.ativo ? [cfg.ativo] : [])
+    };
+    if (CONFIG.ativo && !CONFIG.conteudos.some(c => (typeof c === 'string' ? c : c.arquivo) === CONFIG.ativo)){
+      CONFIG.conteudos.push(CONFIG.ativo);
+    }
+    return true;
+  }catch(e){ return false; }
+}
+
+async function baixarConteudo(arquivo){
+  const resp = await fetch(arquivo, { cache: 'no-store' });
+  if (!resp.ok) throw new Error('não encontrei o arquivo ' + arquivo);
+  const dados = await resp.json();
+  if (!dados.modulos || !dados.questoes) throw new Error(arquivo + ' não tem módulos/questões');
+  return dados;
+}
+
+/* Lê todos os conteúdos listados no config.json para descobrir o código de cada um.
+   O código pode vir do próprio arquivo (meta.codigo) ou do config (que tem prioridade). */
+async function montarCatalogo(){
+  if (CATALOGO) return CATALOGO;
+  CATALOGO = [];
+  for (const item of CONFIG.conteudos){
+    const arquivo = typeof item === 'string' ? item : item.arquivo;
+    const codigoCfg = typeof item === 'string' ? null : item.codigo;
+    if (!arquivo) continue;
+    try{
+      const dados = await baixarConteudo(arquivo);
+      CATALOGO.push({
+        arquivo,
+        codigo: normalizarCodigo(codigoCfg || (dados.meta && dados.meta.codigo) || ''),
+        nome: (dados.meta && dados.meta.nome) || arquivo,
+        dados
+      });
+    }catch(e){ /* arquivo listado mas ausente: ignora, os outros continuam valendo */ }
+  }
+  return CATALOGO;
+}
+
+function aplicarConteudo(dados, arquivo){
+  DB = normalizarDB(dados);
+  saveDB(DB); // cópia local, serve de cache se ficar offline depois
+  FONTE_CONTEUDO = { origem: 'remoto', arquivo };
+}
+
+/* Procura o conteúdo cujo código de acesso bate com o digitado pelo aluno. */
+async function carregarPorCodigo(codigo){
+  const alvo = normalizarCodigo(codigo);
+  if (!alvo) return { ok:false, motivo:'vazio' };
+  const catalogo = await montarCatalogo();
+  const achado = catalogo.find(c => c.codigo && c.codigo === alvo);
+  if (!achado) return { ok:false, motivo:'nao_encontrado' };
+  aplicarConteudo(achado.dados, achado.arquivo);
+  localStorage.setItem(CODIGO_KEY, alvo);
+  return { ok:true, conteudo: achado };
+}
+
+/* Tenta carregar config.json + o conteúdo (o do último código usado, ou o "ativo").
    Se não conseguir (ex: rodando como arquivo local sem servidor), mantém o que já
    estiver salvo no localStorage deste navegador (comportamento antigo, como fallback). */
 async function carregarConteudoRemoto(){
   try{
-    const cfgResp = await fetch('config.json', { cache: 'no-store' });
-    if (!cfgResp.ok) return false;
-    const cfg = await cfgResp.json();
-    if (!cfg.ativo) return false;
+    if (!await carregarConfig()) return false;
 
-    const contResp = await fetch(cfg.ativo, { cache: 'no-store' });
-    if (!contResp.ok) return false;
-    const conteudo = await contResp.json();
-    if (!conteudo.modulos || !conteudo.questoes) return false;
+    // se a equipe já entrou com um código neste navegador, volta direto para aquele desafio
+    const ultimo = localStorage.getItem(CODIGO_KEY);
+    if (ultimo){
+      const r = await carregarPorCodigo(ultimo);
+      if (r.ok) return true;
+      localStorage.removeItem(CODIGO_KEY); // código saiu do ar: cai para o padrão
+    }
 
-    DB = normalizarDB(conteudo);
-    saveDB(DB); // guarda uma cópia local, serve de cache se ficar offline depois
-    FONTE_CONTEUDO = { origem: 'remoto', arquivo: cfg.ativo };
+    if (!CONFIG.ativo) return false;
+    aplicarConteudo(await baixarConteudo(CONFIG.ativo), CONFIG.ativo);
     return true;
   }catch(e){
-    return false; // ex: aberto como arquivo local (file://), sem servidor -> ignora e usa o localStorage
+    return false; // ex: aberto como arquivo local (file://), sem servidor -> usa o localStorage
   }
 }
 
@@ -305,6 +404,11 @@ function viewProfessor(){
     <div class="card">
       <label>Nome deste conjunto de conteúdo (aparece para você e para os alunos, e vai junto no arquivo exportado)</label>
       <input id="nomeConjunto" type="text" value="${escapeHtml((DB.meta&&DB.meta.nome)||'')}" placeholder="Ex: Turma 201 — Conteúdo 2 (Vetores)" onchange="DB.meta = DB.meta||{}; DB.meta.nome = this.value; saveDB(DB);">
+
+      <label>Código de acesso (é isso que você passa para a turma digitar na tela de entrada)</label>
+      <input id="codigoConjunto" type="text" style="text-transform:uppercase;" value="${escapeHtml((DB.meta&&DB.meta.codigo)||'')}" placeholder="Ex: OMEGA2048"
+        onchange="DB.meta = DB.meta||{}; DB.meta.codigo = normalizarCodigo(this.value); this.value = DB.meta.codigo; saveDB(DB);">
+      <p class="muted" style="margin-top:6px;">Maiúsculas/minúsculas e espaços são ignorados na hora de conferir. O código só funciona depois que este conteúdo estiver publicado e listado no <b>config.json</b>.</p>
     </div>
 
     <div class="card">
@@ -391,13 +495,16 @@ function importarConteudo(ev){
 }
 
 function verEquipes(){
-  const nomes = Object.keys(localStorage).filter(k=>k.startsWith(PROGRESS_PREFIX)).map(k=>k.slice(PROGRESS_PREFIX.length));
-  if (!nomes.length){ alert('Nenhuma equipe jogou neste computador ainda.'); return; }
-  const linhas = nomes.map(n => {
-    const p = loadProgress(n);
-    const acertos = Object.values(p.respostas).filter(r=>r.ok).length;
-    return `${n}: ${acertos} questões corretas — pontuação ${p.pontuacao}`;
-  });
+  const chaves = Object.keys(localStorage).filter(k=>k.startsWith(PROGRESS_PREFIX));
+  if (!chaves.length){ alert('Nenhuma equipe jogou neste computador ainda.'); return; }
+  const linhas = chaves.map(k => {
+    let p;
+    try{ p = JSON.parse(localStorage.getItem(k)); }catch(e){ return null; }
+    if (!p || !p.equipe) return null;
+    const acertos = Object.values(p.respostas||{}).filter(r=>r.ok).length;
+    const desafio = p.conteudo || '(desafio antigo)';
+    return `${p.equipe} [${desafio}]: ${acertos} questões corretas — pontuação ${p.pontuacao}`;
+  }).filter(Boolean);
   alert('Progresso registrado neste computador:\n\n' + linhas.join('\n'));
 }
 
@@ -588,19 +695,127 @@ function viewAlunoLogin(){
     <div class="topbar"><div><span class="tag">Modo Aluno</span><h1>Identifique sua equipe</h1></div>
       <button class="btn ghost" onclick="ir('inicio')">⟵ Voltar</button></div>
     <div class="card">
-      <label>Nome da equipe</label>
-      <input id="loginEquipe" type="text" placeholder="Ex: Equipe Byte">
+      <div class="grid2">
+        <div>
+          <label>Nome da equipe</label>
+          <input id="loginEquipe" type="text" placeholder="Ex: Equipe Byte">
+        </div>
+        <div>
+          <label>Código do desafio (o professor passa na aula)</label>
+          <input id="loginCodigo" type="text" placeholder="Ex: OMEGA2048" style="text-transform:uppercase;"
+            onkeydown="if(event.key==='Enter') entrarComoAluno();">
+        </div>
+      </div>
       <div class="row"><button class="btn" onclick="entrarComoAluno()">Entrar</button></div>
-      <p class="muted" style="margin-top:10px;">Seu progresso fica salvo neste computador com esse nome — use sempre o mesmo nome pra continuar de onde parou.</p>
+      <div class="feedback" id="fbLogin"></div>
+      <p class="muted" style="margin-top:10px;">Deixe o código em branco para entrar no desafio que já está aberto${FONTE_CONTEUDO.arquivo ? ` (<b>${escapeHtml((DB.meta&&DB.meta.nome)||FONTE_CONTEUDO.arquivo)}</b>)` : ''}. Seu progresso fica salvo neste computador com o nome da equipe, separado por desafio — use sempre o mesmo nome pra continuar de onde parou.</p>
+      <hr class="divider">
+      <p class="muted">Já tem um arquivo de progresso salvo (de outro dia ou de outro computador)? Carregue aqui — ele traz as fases resolvidas, as chaves, a pontuação e todo o código que você já tinha escrito.</p>
+      <div class="row">
+        <label class="btn amber" style="cursor:pointer;">📂 Continuar de um arquivo salvo
+          <input type="file" accept=".json" style="display:none;" onchange="carregarProgressoArquivo(event)">
+        </label>
+      </div>
     </div>
   `;
 }
-function entrarComoAluno(){
+async function entrarComoAluno(){
   const nome = document.getElementById('loginEquipe').value.trim();
+  const codigo = document.getElementById('loginCodigo').value;
+  const fb = document.getElementById('fbLogin');
+  fb.className = 'feedback'; fb.innerHTML = '';
+
   if (!nome){ toast('Digite o nome da equipe.'); return; }
+
+  if (normalizarCodigo(codigo)){
+    fb.innerHTML = 'Procurando o desafio...';
+    const r = await carregarPorCodigo(codigo);
+    if (!r.ok){
+      fb.className = 'feedback err';
+      fb.innerHTML = FONTE_CONTEUDO.origem === 'local'
+        ? '⚠ Não consigo procurar códigos com a página aberta direto do computador — abra pelo link publicado.'
+        : '⚠ Código não encontrado. Confira com o professor (maiúsculas e minúsculas não importam).';
+      return;
+    }
+    toast('Desafio carregado: ' + r.conteudo.nome);
+  } else if (!FONTE_CONTEUDO.arquivo && !DB.modulos.length){
+    fb.className = 'feedback err';
+    fb.innerHTML = '⚠ Nenhum desafio aberto no momento — peça o código ao professor.';
+    return;
+  }
+
   PROGRESS = loadProgress(nome);
   saveProgress(PROGRESS);
   ir('aluno');
+}
+
+/* ===================== SALVAR / CONTINUAR DEPOIS ===================== */
+const ARQ_PROGRESSO = 'labPerdido_progresso_v1';
+
+function salvarProgressoArquivo(){
+  saveProgress(PROGRESS);
+  const pacote = {
+    tipo: ARQ_PROGRESSO,
+    versao: 1,
+    conteudoArquivo: FONTE_CONTEUDO.arquivo || null,
+    conteudoNome: (DB.meta && DB.meta.nome) || null,
+    salvoEm: new Date().toISOString(),
+    progresso: PROGRESS
+  };
+  const nomeArq = 'progresso_' + PROGRESS.equipe.replace(/[^\wÀ-ÿ -]/g,'').replace(/\s+/g,'_') + '.json';
+  const blob = new Blob([JSON.stringify(pacote, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nomeArq;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Progresso salvo em ' + nomeArq);
+}
+
+function carregarProgressoArquivo(ev){
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let pacote;
+    try{ pacote = JSON.parse(reader.result); }
+    catch(e){ alert('Não consegui ler esse arquivo — ele não parece um arquivo de progresso.'); return; }
+
+    const p = (pacote && pacote.tipo === ARQ_PROGRESSO) ? pacote.progresso : pacote;
+    if (!p || !p.equipe || typeof p.respostas !== 'object'){
+      alert('Arquivo inválido: não encontrei um progresso de equipe aqui dentro.');
+      return;
+    }
+    if (pacote.conteudoArquivo && FONTE_CONTEUDO.arquivo && pacote.conteudoArquivo !== FONTE_CONTEUDO.arquivo){
+      const segue = confirm(
+        'Atenção: esse progresso foi salvo no desafio "' + (pacote.conteudoNome || pacote.conteudoArquivo) + '",\n' +
+        'mas o desafio ativo agora é outro (' + ((DB.meta && DB.meta.nome) || FONTE_CONTEUDO.arquivo) + ').\n\n' +
+        'As fases resolvidas podem não bater. Carregar mesmo assim?');
+      if (!segue) return;
+    }
+
+    p.respostas = p.respostas || {};
+    p.rascunhos = p.rascunhos || {};
+    p.chaves = p.chaves || {};
+    p.tempoAcumulado = p.tempoAcumulado || 0;
+    p.inicio = Date.now();
+    PROGRESS = p;
+    saveProgress(PROGRESS);
+    toast('Bem-vinda de volta, ' + PROGRESS.equipe + '!');
+    ir('aluno');
+  };
+  reader.readAsText(file);
+}
+
+function htmlBotoesProgresso(){
+  return `
+    <div class="row" style="margin-bottom:14px;">
+      <button class="btn ghost small" onclick="salvarProgressoArquivo()">💾 Salvar progresso (.json)</button>
+      <label class="btn ghost small" style="cursor:pointer;">📂 Continuar de um arquivo
+        <input type="file" accept=".json" style="display:none;" onchange="carregarProgressoArquivo(event)">
+      </label>
+      <span class="muted" style="font-size:11.5px;">Salve antes de sair para continuar em outro dia ou em outro computador.</span>
+    </div>`;
 }
 
 /* ===================== ALUNO: LISTA DE MÓDULOS ===================== */
@@ -618,8 +833,7 @@ function moduloDesbloqueado(mod, modulosOrdenados){
 }
 
 function statsHeader(){
-  const tempo = Math.floor((Date.now() - PROGRESS.inicio)/1000);
-  const m = String(Math.floor(tempo/60)).padStart(2,'0'), s = String(tempo%60).padStart(2,'0');
+  const t = tempoDecorrido(PROGRESS), m = t.m, s = t.s;
   return `
     <div class="row" style="margin-bottom:14px;">
       <span class="pill">👥 ${escapeHtml(PROGRESS.equipe)}</span>
@@ -667,6 +881,7 @@ function viewAluno(){
     </div>
     ${badgeConteudoAtivo()}
     ${statsHeader()}
+    ${htmlBotoesProgresso()}
     ${cards}
   `;
 }
@@ -891,6 +1106,7 @@ function rodarGrupo(codigo, grupo){
 function executarCodigo(qId){
   const q = DB.questoes.find(x=>x.id===qId);
   const codigo = document.getElementById('codigoAluno').value;
+  salvarRascunho(qId);
   const grupos = agruparCasos(q);
   const sel = document.getElementById('cenarioSel');
   const idx = sel ? parseInt(sel.value,10) : 0;
@@ -913,6 +1129,7 @@ function verificarQuestao(qId){
   const fb = document.getElementById('fbQuestao');
 
   if (!codigo.replace(/\s/g,'').length){ toast('Escreva ou cole seu código antes de verificar.'); return; }
+  salvarRascunho(qId); // garante que o código do aluno nunca se perde ao sair
 
   // 1) o código compila?
   const analise = CSharp.analisar(codigo);
@@ -997,8 +1214,7 @@ function pedirDica(qId){
 
 /* ===================== TELA DE SUCESSO ===================== */
 function viewSucesso(){
-  const tempo = Math.floor((Date.now() - PROGRESS.inicio)/1000);
-  const m = String(Math.floor(tempo/60)).padStart(2,'0'), s = String(tempo%60).padStart(2,'0');
+  const t = tempoDecorrido(PROGRESS), m = t.m, s = t.s;
   return `
     <div class="topbar"><h1>🎉 MISSÃO CONCLUÍDA</h1></div>
     <div class="card">
@@ -1011,14 +1227,14 @@ function viewSucesso(){
       </div>
       <div class="row">
         <button class="btn amber" onclick="exportarPdf()">📄 Exportar PDF</button>
+        <button class="btn ghost" onclick="salvarProgressoArquivo()">💾 Salvar progresso (.json)</button>
         <button class="btn ghost" onclick="ir('inicio')">Sair</button>
       </div>
     </div>
   `;
 }
 function exportarPdf(){
-  const tempo = Math.floor((Date.now() - PROGRESS.inicio)/1000);
-  const m = String(Math.floor(tempo/60)).padStart(2,'0'), s = String(tempo%60).padStart(2,'0');
+  const t = tempoDecorrido(PROGRESS), m = t.m, s = t.s;
   document.getElementById('prTeam').textContent = PROGRESS.equipe;
   document.getElementById('prDate').textContent = new Date().toLocaleString('pt-BR');
   document.getElementById('prTime').textContent = `${m}:${s}`;

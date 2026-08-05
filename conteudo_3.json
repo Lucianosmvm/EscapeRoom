@@ -1,0 +1,1053 @@
+{
+  "meta": {
+    "nome": "Conteúdo 3 — ESCAPE CODE: A Fuga do Projeto ÔMEGA",
+    "chaveiro": {
+      "total": 18,
+      "rotulo": "CHAVES DO COMPLEXO ÔMEGA"
+    },
+    "codigo": "OMEGA2048"
+  },
+  "modulos": [
+    {
+      "id": "mod1",
+      "ordem": 1,
+      "nome": "MISSÃO 1 — O Despertar",
+      "descricao": "CHAVE 1 DE 18 · [Variáveis e tipos] Você acorda no chão frio do Complexo ÔMEGA. As luzes piscam. Uma voz metálica ecoa: \"Identidade não encontrada.\" Um painel holográfico pede seu registro — sem ele, a primeira porta não abre.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod2",
+      "ordem": 2,
+      "nome": "MISSÃO 2 — Reator de Energia",
+      "descricao": "CHAVE 2 DE 18 · [Operadores matemáticos] A porta abre para um corredor completamente escuro. O reator auxiliar está desligado e o console pisca uma única frase: \"Calcule a energia restante.\"",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod3",
+      "ordem": 3,
+      "nome": "MISSÃO 3 — Scanner Biométrico",
+      "descricao": "CHAVE 3 DE 18 · [if / else] As luzes voltam. Um feixe vermelho corta o corredor: \"Somente pessoas autorizadas.\" O scanner exige a idade de quem tenta passar.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod4",
+      "ordem": 4,
+      "nome": "MISSÃO 4 — Terminal de Rotas",
+      "descricao": "CHAVE 4 DE 18 · [switch] Você chega a uma central ferroviária subterrânea. Três trilhos partem daqui, e o terminal aceita um único número como destino.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod5",
+      "ordem": 5,
+      "nome": "MISSÃO 5 — Sistema de Resfriamento",
+      "descricao": "CHAVE 5 DE 18 · [Laço for] O núcleo do laboratório está superaquecendo. EVA inicia o protocolo de resfriamento e exige a contagem regressiva completa antes de reiniciar o sistema.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod6",
+      "ordem": 6,
+      "nome": "MISSÃO 6 — Inventário Perdido",
+      "descricao": "CHAVE 6 DE 18 · [Arrays] Uma mochila abandonada no canto da sala. Dentro dela, os objetos de quem tentou fugir antes de você.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod7",
+      "ordem": 7,
+      "nome": "MISSÃO 7 — Sobreviventes",
+      "descricao": "CHAVE 7 DE 18 · [List<T>] Um servidor antigo ainda respira em um canto da sala. Nele, o último registro de vida do Complexo ÔMEGA.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod8",
+      "ordem": 8,
+      "nome": "MISSÃO 8 — Banco de Dados",
+      "descricao": "CHAVE 8 DE 18 · [Dictionary<K,V>] EVA escondeu os códigos das portas em um banco de dados corrompido. Cada porta é identificada por uma cor, e cada cor guarda um número.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod9",
+      "ordem": 9,
+      "nome": "MISSÃO 9 — Sala de Controle",
+      "descricao": "CHAVE 9 DE 18 · [Métodos] A sala de controle exige que você automatize o cálculo de carga. EVA não aceita a mesma conta copiada três vezes — ela quer uma rotina reaproveitável.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod10",
+      "ordem": 10,
+      "nome": "MISSÃO 10 — O Registro",
+      "descricao": "CHAVE 10 DE 18 · [Classes] Nos arquivos do complexo, cada pessoa tinha um registro digital com vários campos. Variáveis soltas não dão mais conta: é hora de criar seu próprio tipo de dado.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod11",
+      "ordem": 11,
+      "nome": "MISSÃO 11 — Os Robôs",
+      "descricao": "CHAVE 11 DE 18 · [Objetos e métodos de instância] Na oficina, três carcaças de robôs de manutenção. Se você conseguir ligá-los, eles carregam o que for preciso — inclusive você.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod12",
+      "ordem": 12,
+      "nome": "MISSÃO 12 — A Fábrica",
+      "descricao": "CHAVE 12 DE 18 · [Construtores] A linha de montagem ainda funciona. Aqui os robôs já saem prontos da esteira — nome e energia definidos no instante em que são criados.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod13",
+      "ordem": 13,
+      "nome": "MISSÃO 13 — Arsenal",
+      "descricao": "CHAVE 13 DE 18 · [Encapsulamento] O arsenal é a sala mais protegida do complexo. Aqui nada é acessado diretamente: um robô com energia negativa explodiria a sala inteira.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod14",
+      "ordem": 14,
+      "nome": "MISSÃO 14 — A Evolução",
+      "descricao": "CHAVE 14 DE 18 · [Herança] Os registros revelam que a fábrica produzia duas linhagens de robôs. Ambas partem do mesmo projeto base — mas cada uma ganhou uma habilidade própria.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod15",
+      "ordem": 15,
+      "nome": "MISSÃO 15 — A Rebelião",
+      "descricao": "CHAVE 15 DE 18 · [Polimorfismo] EVA percebeu seus robôs. Ela lança um comando único para todos ao mesmo tempo: ATACAR. Mas cada linhagem entende esse comando à sua maneira.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod16",
+      "ordem": 16,
+      "nome": "MISSÃO 16 — O Núcleo da EVA",
+      "descricao": "CHAVE 16 DE 18 · [Classes abstratas] Você alcança o núcleo. Aqui está o projeto original: um molde que nunca virou robô nenhum. EVA o mantém incompleto de propósito — ninguém pode instanciá-lo, só derivá-lo.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod17",
+      "ordem": 17,
+      "nome": "MISSÃO 17 — Protocolo de Emergência",
+      "descricao": "CHAVE 17 DE 18 · [Interfaces] Nem todo robô sabe invadir sistemas. Essa é uma habilidade extra, que atravessa as linhagens: alguns soldados têm, alguns médicos também.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod18",
+      "ordem": 18,
+      "nome": "MISSÃO 18 — Sobrecarga",
+      "descricao": "CHAVE 18 DE 18 · [Tratamento de exceções] O reator entra em sobrecarga. Um cálculo errado agora derruba o sistema inteiro — e com ele, sua única rota de fuga. O programa não pode morrer, aconteça o que acontecer.",
+      "obrigatorias": 1
+    },
+    {
+      "id": "mod19",
+      "ordem": 19,
+      "nome": "MISSÃO FINAL — O Confronto com EVA",
+      "descricao": "CONFRONTO FINAL · [Tudo junto] Você chega ao núcleo central. EVA aparece no telão, calma: \"Você aprendeu minha linguagem... agora prove que pode me derrotar.\" Não há mais dicas parciais. É o sistema inteiro, de uma vez.",
+      "obrigatorias": 1
+    }
+  ],
+  "questoes": [
+    {
+      "id": "q1",
+      "moduloId": "mod1",
+      "titulo": "Painel de Identificação",
+      "enunciado": "O painel projeta a ficha do último ocupante da sala:\n\n\"Nome: Nova. Idade: 26 anos. Altura: 1.72. Apto para a missão: sim.\"\n\nReconstrua essa ficha em memória: uma variável para cada informação, cada uma com o tipo mais adequado (texto, número inteiro, número com casas decimais e verdadeiro/falso).\n\nExiba, nesta ordem:\nnome: Nova\nidade: 26\naltura: 1,72\napto: True\nIdentidade registrada.\n\nA CHAVE 1 é a idade somada à quantidade de letras do nome.",
+      "pontosBase": 15,
+      "dica1": "Quatro informações, quatro naturezas diferentes: texto, contagem inteira, medida com decimais e resposta sim/não.",
+      "dica2": "string, int, double e bool. A quantidade de letras de um texto vem de .Length. Exiba o bool como ele é, sem traduzir.",
+      "dica3": "string nome = \"Nova\"; int idade = 26; double altura = 1.72; bool apto = true; int chave = idade + nome.Length;",
+      "requisitos": [
+        "tipo:string",
+        "tipo:int",
+        "tipo:double",
+        "tipo:bool",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "ficha da Nova",
+          "entradas": [],
+          "saidaEsperada": "nome: nova",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "idade: 26",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "altura: *1[.,]72",
+          "modo": "regex",
+          "rotulo": "altura: 1,72"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "apto: true",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "identidade registrada.",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 1: 30",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string nome = \"Nova\";\n        int idade = 26;\n        double altura = 1.72;\n        bool apto = true;\n\n        int chave = idade + nome.Length;\n\n        Console.WriteLine(\"nome: \" + nome);\n        Console.WriteLine(\"idade: \" + idade);\n        Console.WriteLine(\"altura: \" + altura);\n        Console.WriteLine(\"apto: \" + apto);\n        Console.WriteLine(\"Identidade registrada.\");\n        Console.WriteLine(\"CHAVE 1: \" + chave);\n    }\n}"
+    },
+    {
+      "id": "q2",
+      "moduloId": "mod2",
+      "titulo": "Console do Reator",
+      "enunciado": "Duas células de energia foram encontradas:\n\nenergiaA = 18\nenergiaB = 7\n\nCrie as duas variáveis e exiba, nesta ordem, o resultado de cada operação entre elas:\nsoma: 25\nsubtracao: 11\nmultiplicacao: 126\ndivisao: 2\n\nRepare na última: são dois inteiros, então a divisão descarta a parte decimal.\n\nA CHAVE 2 é a soma somada à multiplicação.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 15,
+      "dica1": "Guarde os dois valores em variáveis inteiras e use os operadores +, -, * e / entre elas.",
+      "dica2": "Entre dois números inteiros, o / do C# devolve só a parte inteira: 18 / 7 dá 2, não 2,57.",
+      "dica3": "int soma = energiaA + energiaB; int mult = energiaA * energiaB; int chave = soma + mult;",
+      "requisitos": [
+        "tipo:int",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "células A e B",
+          "entradas": [],
+          "saidaEsperada": "soma: 25",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "subtracao: 11",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "multiplicacao: 126",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "divisao: 2",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 2: 151",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int energiaA = 18;\n        int energiaB = 7;\n\n        int soma = energiaA + energiaB;\n        int subtracao = energiaA - energiaB;\n        int multiplicacao = energiaA * energiaB;\n        int divisao = energiaA / energiaB;\n\n        Console.WriteLine(\"soma: \" + soma);\n        Console.WriteLine(\"subtracao: \" + subtracao);\n        Console.WriteLine(\"multiplicacao: \" + multiplicacao);\n        Console.WriteLine(\"divisao: \" + divisao);\n        Console.WriteLine(\"CHAVE 2: \" + (soma + multiplicacao));\n    }\n}"
+    },
+    {
+      "id": "q3",
+      "moduloId": "mod3",
+      "titulo": "Scanner de Acesso",
+      "enunciado": "O scanner lê a idade digitada no console (um número inteiro).\n\nSe a idade for 18 ou mais, exiba:\nAcesso permitido\n\nCaso contrário, exiba:\nAcesso negado\n\nA CHAVE 3 é a idade multiplicada por 2 (vale para os dois casos).\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.\n\nEVA confere linha por linha: imprima exatamente as linhas pedidas, na ordem pedida, e nada além disso.",
+      "pontosBase": 15,
+      "dica1": "Console.ReadLine() devolve texto; converta para número antes de comparar.",
+      "dica2": "Uma decisão com dois caminhos: if para o caso autorizado, else para o resto.",
+      "dica3": "int idade = int.Parse(Console.ReadLine()); if (idade >= 18) { ... } else { ... } e depois a linha da chave.",
+      "requisitos": [
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:if",
+        "estrutura:else",
+        "tipo:int"
+      ],
+      "casos": [
+        {
+          "descricao": "a leitura registrada pelo scanner",
+          "entradas": [
+            "19"
+          ],
+          "saidaEsperada": "acesso permitido\nchave 3: 38",
+          "modo": "exata",
+          "oficial": true
+        },
+        {
+          "descricao": "menor de idade",
+          "entradas": [
+            "15"
+          ],
+          "saidaEsperada": "acesso negado\nchave 3: 30",
+          "modo": "exata"
+        },
+        {
+          "descricao": "exatamente no limite",
+          "entradas": [
+            "18"
+          ],
+          "saidaEsperada": "acesso permitido\nchave 3: 36",
+          "modo": "exata"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int idade = int.Parse(Console.ReadLine());\n\n        if (idade >= 18)\n            Console.WriteLine(\"Acesso permitido\");\n        else\n            Console.WriteLine(\"Acesso negado\");\n\n        Console.WriteLine(\"CHAVE 3: \" + (idade * 2));\n    }\n}"
+    },
+    {
+      "id": "q4",
+      "moduloId": "mod4",
+      "titulo": "Terminal Ferroviário",
+      "enunciado": "O terminal lê um número digitado no console e responde com o destino:\n\n1 → Laboratório\n2 → Oficina\n3 → Depósito\n\nExiba o destino no formato:\ndestino: Laboratório\n\nQualquer outro número deve exibir \"destino: rota desconhecida\".\n\nComo é um valor único comparado contra uma lista de opções, use switch (não use if/else aqui).\n\nA CHAVE 4 é o número digitado multiplicado por 10.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.\n\nEVA confere linha por linha: imprima exatamente as linhas pedidas, na ordem pedida, e nada além disso.",
+      "pontosBase": 15,
+      "dica1": "Existe uma estrutura própria para comparar uma variável contra vários valores fixos.",
+      "dica2": "Cada rota vira um case; o que sobra cai no default. Todo bloco termina com break.",
+      "dica3": "switch (rota) { case 1: Console.WriteLine(\"destino: Laboratório\"); break; ... default: ...; break; }",
+      "requisitos": [
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:switch"
+      ],
+      "casos": [
+        {
+          "descricao": "trilho tomado na fuga",
+          "entradas": [
+            "1"
+          ],
+          "saidaEsperada": "destino: laboratório\nchave 4: 10",
+          "modo": "exata",
+          "oficial": true
+        },
+        {
+          "descricao": "trilho da oficina",
+          "entradas": [
+            "2"
+          ],
+          "saidaEsperada": "destino: oficina\nchave 4: 20",
+          "modo": "exata"
+        },
+        {
+          "descricao": "trilho do depósito",
+          "entradas": [
+            "3"
+          ],
+          "saidaEsperada": "destino: depósito\nchave 4: 30",
+          "modo": "exata"
+        },
+        {
+          "descricao": "trilho inexistente",
+          "entradas": [
+            "8"
+          ],
+          "saidaEsperada": "destino: rota desconhecida\nchave 4: 80",
+          "modo": "exata"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int rota = int.Parse(Console.ReadLine());\n\n        switch (rota)\n        {\n            case 1: Console.WriteLine(\"destino: Laboratório\"); break;\n            case 2: Console.WriteLine(\"destino: Oficina\"); break;\n            case 3: Console.WriteLine(\"destino: Depósito\"); break;\n            default: Console.WriteLine(\"destino: rota desconhecida\"); break;\n        }\n\n        Console.WriteLine(\"CHAVE 4: \" + (rota * 10));\n    }\n}"
+    },
+    {
+      "id": "q5",
+      "moduloId": "mod5",
+      "titulo": "Contagem de Resfriamento",
+      "enunciado": "Exiba a contagem regressiva de 10 até 1, um número por linha. Logo depois da contagem, exiba:\n\nSistema reiniciado.\n\nA CHAVE 5 é o primeiro número da contagem somado ao último.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 15,
+      "dica1": "A quantidade de repetições é conhecida, então use um laço com contador — só que ele desce em vez de subir.",
+      "dica2": "O contador começa em 10, continua enquanto for maior ou igual a 1, e diminui de 1 em 1 (i--).",
+      "dica3": "for (int i = 10; i >= 1; i--) { Console.WriteLine(i); } e depois as duas últimas linhas.",
+      "requisitos": [
+        "estrutura:for",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "protocolo de resfriamento",
+          "entradas": [],
+          "saidaEsperada": "10[\\s\\S]*9[\\s\\S]*8[\\s\\S]*7[\\s\\S]*6[\\s\\S]*5[\\s\\S]*4[\\s\\S]*3[\\s\\S]*2[\\s\\S]*1",
+          "modo": "regex",
+          "rotulo": "os números de 10 até 1, em ordem decrescente",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "sistema reiniciado.",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 5: 11",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        for (int i = 10; i >= 1; i--)\n        {\n            Console.WriteLine(i);\n        }\n\n        Console.WriteLine(\"Sistema reiniciado.\");\n        Console.WriteLine(\"CHAVE 5: \" + (10 + 1));\n    }\n}"
+    },
+    {
+      "id": "q6",
+      "moduloId": "mod6",
+      "titulo": "Conteúdo da Mochila",
+      "enunciado": "Guarde os quatro objetos em UM vetor (array) de textos, nesta ordem:\n\nLanterna, Cartão, Chave Inglesa, Rádio\n\nPercorra o vetor com um laço for, usando o tamanho do próprio vetor como limite, e exiba:\n\nitem 1: Lanterna\nitem 2: Cartão\nitem 3: Chave Inglesa\nitem 4: Rádio\n\nA CHAVE 6 é a quantidade de itens do vetor multiplicada por 5 (use o tamanho do vetor, não o número 4 escrito na mão).\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 20,
+      "dica1": "Um vetor guarda vários valores do mesmo tipo em uma variável só, cada um numa posição numerada.",
+      "dica2": "string[] itens = { \"Lanterna\", ... }; a quantidade de posições vem de itens.Length, e a primeira posição é a 0.",
+      "dica3": "for (int i = 0; i < itens.Length; i++) { Console.WriteLine(\"item \" + (i + 1) + \": \" + itens[i]); }",
+      "requisitos": [
+        "estrutura:array",
+        "estrutura:for",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "inventário da mochila",
+          "entradas": [],
+          "saidaEsperada": "item 1: lanterna",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "item 2: cartão",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "item 3: chave inglesa",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "item 4: rádio",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 6: 20",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string[] itens = { \"Lanterna\", \"Cartão\", \"Chave Inglesa\", \"Rádio\" };\n\n        for (int i = 0; i < itens.Length; i++)\n        {\n            Console.WriteLine(\"item \" + (i + 1) + \": \" + itens[i]);\n        }\n\n        Console.WriteLine(\"CHAVE 6: \" + (itens.Length * 5));\n    }\n}"
+    },
+    {
+      "id": "q7",
+      "moduloId": "mod7",
+      "titulo": "Registro de Sobreviventes",
+      "enunciado": "Guarde os nomes em uma List<string> (não em um array): Ana, Bruno, Carla, Diego, Elisa.\n\nPercorra a lista e exiba um por linha:\n\nsobrevivente: Ana\nsobrevivente: Bruno\n...\n\nA CHAVE 7 é a quantidade de nomes da lista somada à quantidade de letras do primeiro nome — ambos obtidos da própria lista.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 20,
+      "dica1": "Uma List cresce conforme você adiciona itens; comece vazia e use Add, ou já crie com os valores dentro.",
+      "dica2": "A quantidade de itens de uma List vem de .Count (em array é .Length). O primeiro item é lista[0].",
+      "dica3": "List<string> nomes = new List<string>(); nomes.Add(\"Ana\"); ... int chave = nomes.Count + nomes[0].Length;",
+      "requisitos": [
+        "estrutura:list",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "registro do servidor",
+          "entradas": [],
+          "saidaEsperada": "sobrevivente: ana",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "sobrevivente: bruno",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "sobrevivente: carla",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "sobrevivente: diego",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "sobrevivente: elisa",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 7: 8",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        List<string> nomes = new List<string>();\n        nomes.Add(\"Ana\");\n        nomes.Add(\"Bruno\");\n        nomes.Add(\"Carla\");\n        nomes.Add(\"Diego\");\n        nomes.Add(\"Elisa\");\n\n        foreach (string n in nomes)\n        {\n            Console.WriteLine(\"sobrevivente: \" + n);\n        }\n\n        Console.WriteLine(\"CHAVE 7: \" + (nomes.Count + nomes[0].Length));\n    }\n}"
+    },
+    {
+      "id": "q8",
+      "moduloId": "mod8",
+      "titulo": "Códigos das Portas",
+      "enunciado": "Monte um Dictionary<string, int> com os três pares recuperados:\n\nAzul → 15\nVerde → 27\nVermelho → 31\n\nPercorra o dicionário e exiba cada par no formato:\n\nAzul -> 15\nVerde -> 27\nVermelho -> 31\n\nA CHAVE 8 é a soma de todos os códigos, somada dentro do laço.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 20,
+      "dica1": "Um dicionário guarda pares: uma chave (a cor) aponta para um valor (o código).",
+      "dica2": "Dictionary<string, int> portas = new Dictionary<string, int>(); portas.Add(\"Azul\", 15); ...",
+      "dica3": "foreach (KeyValuePair<string, int> p in portas) { Console.WriteLine(p.Key + \" -> \" + p.Value); soma += p.Value; }",
+      "requisitos": [
+        "estrutura:dicionario",
+        "estrutura:acumulador",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "banco de dados das portas",
+          "entradas": [],
+          "saidaEsperada": "azul -> 15",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "verde -> 27",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "vermelho -> 31",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 8: 73",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        Dictionary<string, int> portas = new Dictionary<string, int>();\n        portas.Add(\"Azul\", 15);\n        portas.Add(\"Verde\", 27);\n        portas.Add(\"Vermelho\", 31);\n\n        int soma = 0;\n\n        foreach (KeyValuePair<string, int> p in portas)\n        {\n            Console.WriteLine(p.Key + \" -> \" + p.Value);\n            soma += p.Value;\n        }\n\n        Console.WriteLine(\"CHAVE 8: \" + soma);\n    }\n}"
+    },
+    {
+      "id": "q9",
+      "moduloId": "mod9",
+      "titulo": "Rotina de Cálculo",
+      "enunciado": "Crie um método que receba dois números inteiros e devolva a soma deles:\n\nint Somar(int a, int b)\n\nUse esse mesmo método três vezes, encadeando os resultados:\n\n1ª chamada: Somar(12, 8)\n2ª chamada: soma o resultado anterior com 5\n3ª chamada: soma o resultado anterior com 9\n\nExiba:\nsoma 1: 20\nsoma 2: 25\nsoma 3: 34\n\nA CHAVE 9 é o resultado da última soma.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 20,
+      "dica1": "Um método é um trecho de código com nome, que recebe valores e pode devolver um resultado com return.",
+      "dica2": "Dentro da classe Program, escreva static int Somar(int a, int b) { return a + b; } — fora do Main.",
+      "dica3": "int r1 = Somar(12, 8); int r2 = Somar(r1, 5); int r3 = Somar(r2, 9);",
+      "requisitos": [
+        "estrutura:metodo",
+        "estrutura:metodoParam",
+        "estrutura:metodoRetorno",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "rotina de carga",
+          "entradas": [],
+          "saidaEsperada": "soma 1: 20",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "soma 2: 25",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "soma 3: 34",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 9: 34",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static int Somar(int a, int b)\n    {\n        return a + b;\n    }\n\n    static void Main()\n    {\n        int r1 = Somar(12, 8);\n        int r2 = Somar(r1, 5);\n        int r3 = Somar(r2, 9);\n\n        Console.WriteLine(\"soma 1: \" + r1);\n        Console.WriteLine(\"soma 2: \" + r2);\n        Console.WriteLine(\"soma 3: \" + r3);\n        Console.WriteLine(\"CHAVE 9: \" + r3);\n    }\n}"
+    },
+    {
+      "id": "q10",
+      "moduloId": "mod10",
+      "titulo": "Registro Digital",
+      "enunciado": "Crie uma classe chamada Pessoa com três informações: Nome, Idade e Cargo.\n\nNo Main, crie DOIS objetos dessa classe e preencha:\n\nAna, 31, Engenheira\nBruno, 27, Tecnico\n\nExiba cada pessoa no formato:\n\nAna | 31 | Engenheira\nBruno | 27 | Tecnico\n\nA CHAVE 10 é a soma das idades das duas pessoas, lida dos próprios objetos.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 25,
+      "dica1": "Uma classe é um molde: ela descreve quais informações todo objeto daquele tipo vai ter.",
+      "dica2": "Escreva a classe FORA da classe Program: class Pessoa { public string Nome; public int Idade; public string Cargo; }",
+      "dica3": "Pessoa p1 = new Pessoa(); p1.Nome = \"Ana\"; p1.Idade = 31; p1.Cargo = \"Engenheira\";",
+      "requisitos": [
+        "estrutura:classe",
+        "estrutura:objeto",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "registros recuperados",
+          "entradas": [],
+          "saidaEsperada": "ana | 31 | engenheira",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "bruno | 27 | tecnico",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 10: 58",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Pessoa\n{\n    public string Nome;\n    public int Idade;\n    public string Cargo;\n}\n\nclass Program\n{\n    static void Main()\n    {\n        Pessoa p1 = new Pessoa();\n        p1.Nome = \"Ana\";\n        p1.Idade = 31;\n        p1.Cargo = \"Engenheira\";\n\n        Pessoa p2 = new Pessoa();\n        p2.Nome = \"Bruno\";\n        p2.Idade = 27;\n        p2.Cargo = \"Tecnico\";\n\n        Console.WriteLine(p1.Nome + \" | \" + p1.Idade + \" | \" + p1.Cargo);\n        Console.WriteLine(p2.Nome + \" | \" + p2.Idade + \" | \" + p2.Cargo);\n        Console.WriteLine(\"CHAVE 10: \" + (p1.Idade + p2.Idade));\n    }\n}"
+    },
+    {
+      "id": "q11",
+      "moduloId": "mod11",
+      "titulo": "Oficina de Robôs",
+      "enunciado": "Crie a classe Robo com duas propriedades: Nome e Energia (use { get; set; }).\n\nDê a ela um método Ligar() que exibe:\n\nR1 ligado com 40 de energia\n\nCrie TRÊS robôs e ligue cada um:\n\nR1 com 40, R2 com 35, R3 com 25\n\nA CHAVE 11 é a soma da energia dos três robôs, lida dos objetos.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 25,
+      "dica1": "Uma propriedade guarda um dado do objeto; um método é uma ação que o objeto sabe executar.",
+      "dica2": "public string Nome { get; set; } — e dentro do método Ligar() você usa Nome e Energia direto, sem ponto.",
+      "dica3": "public void Ligar() { Console.WriteLine(Nome + \" ligado com \" + Energia + \" de energia\"); }",
+      "requisitos": [
+        "estrutura:classe",
+        "estrutura:propriedade",
+        "estrutura:objeto",
+        "estrutura:metodo",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "três robôs da oficina",
+          "entradas": [],
+          "saidaEsperada": "r1 ligado com 40 de energia",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "r2 ligado com 35 de energia",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "r3 ligado com 25 de energia",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 11: 100",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Robo\n{\n    public string Nome { get; set; }\n    public int Energia { get; set; }\n\n    public void Ligar()\n    {\n        Console.WriteLine(Nome + \" ligado com \" + Energia + \" de energia\");\n    }\n}\n\nclass Program\n{\n    static void Main()\n    {\n        Robo r1 = new Robo();\n        r1.Nome = \"R1\";\n        r1.Energia = 40;\n\n        Robo r2 = new Robo();\n        r2.Nome = \"R2\";\n        r2.Energia = 35;\n\n        Robo r3 = new Robo();\n        r3.Nome = \"R3\";\n        r3.Energia = 25;\n\n        r1.Ligar();\n        r2.Ligar();\n        r3.Ligar();\n\n        Console.WriteLine(\"CHAVE 11: \" + (r1.Energia + r2.Energia + r3.Energia));\n    }\n}"
+    },
+    {
+      "id": "q12",
+      "moduloId": "mod12",
+      "titulo": "Linha de Montagem",
+      "enunciado": "Refaça a classe Robo, agora com um CONSTRUTOR que recebe o nome e a energia e já preenche o objeto.\n\nCrie três robôs usando o construtor, em uma linha cada:\n\nAlfa com 50, Beta com 60, Gama com 70\n\nExiba cada um no formato:\n\nAlfa -> 50\nBeta -> 60\nGama -> 70\n\nA CHAVE 12 é a energia total dos três.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 25,
+      "dica1": "O construtor é um método especial que roda no momento do new e tem exatamente o mesmo nome da classe.",
+      "dica2": "Ele não declara tipo de retorno: public Robo(string nome, int energia) { ... }",
+      "dica3": "Dentro do construtor: Nome = nome; Energia = energia; e no Main: Robo a = new Robo(\"Alfa\", 50);",
+      "requisitos": [
+        "estrutura:classe",
+        "estrutura:construtor",
+        "estrutura:objeto",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "saída da esteira",
+          "entradas": [],
+          "saidaEsperada": "alfa -> 50",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "beta -> 60",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "gama -> 70",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 12: 180",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Robo\n{\n    public string Nome { get; set; }\n    public int Energia { get; set; }\n\n    public Robo(string nome, int energia)\n    {\n        Nome = nome;\n        Energia = energia;\n    }\n\n    public void Mostrar()\n    {\n        Console.WriteLine(Nome + \" -> \" + Energia);\n    }\n}\n\nclass Program\n{\n    static void Main()\n    {\n        Robo a = new Robo(\"Alfa\", 50);\n        Robo b = new Robo(\"Beta\", 60);\n        Robo c = new Robo(\"Gama\", 70);\n\n        a.Mostrar();\n        b.Mostrar();\n        c.Mostrar();\n\n        Console.WriteLine(\"CHAVE 12: \" + (a.Energia + b.Energia + c.Energia));\n    }\n}"
+    },
+    {
+      "id": "q13",
+      "moduloId": "mod13",
+      "titulo": "Cofre de Energia",
+      "enunciado": "Crie a classe Robo com um campo PRIVADO para a energia e uma PROPRIEDADE pública que a controla.\n\nRegra do arsenal: se alguém tentar gravar um valor negativo, a energia deve virar 0 (nunca negativa).\n\nCadastre três valores de energia, nesta ordem — 80, depois -30, depois 95 — e exiba a energia realmente registrada a cada tentativa:\n\nenergia registrada: 80\nenergia registrada: 0\nenergia registrada: 95\n\nA CHAVE 13 é a maior energia registrada, descoberta pelo programa comparando os valores.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 25,
+      "dica1": "Encapsular é esconder o dado (private) e deixar só uma porta de entrada controlada (a propriedade).",
+      "dica2": "private int energia; e public int Energia { get { return energia; } set { ... } } — dentro do set, o valor que chegou se chama value.",
+      "dica3": "set { if (value < 0) energia = 0; else energia = value; }",
+      "requisitos": [
+        "estrutura:classe",
+        "estrutura:propriedade",
+        "estrutura:encapsulamento",
+        "estrutura:if",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "três tentativas de cadastro",
+          "entradas": [],
+          "saidaEsperada": "energia registrada: 80",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "energia registrada: 0",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "energia registrada: 95",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 13: 95",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Robo\n{\n    private int energia;\n\n    public int Energia\n    {\n        get { return energia; }\n        set\n        {\n            if (value < 0)\n                energia = 0;\n            else\n                energia = value;\n        }\n    }\n}\n\nclass Program\n{\n    static void Main()\n    {\n        int[] tentativas = { 80, -30, 95 };\n        int maior = 0;\n\n        for (int i = 0; i < tentativas.Length; i++)\n        {\n            Robo r = new Robo();\n            r.Energia = tentativas[i];\n            Console.WriteLine(\"energia registrada: \" + r.Energia);\n\n            if (r.Energia > maior)\n                maior = r.Energia;\n        }\n\n        Console.WriteLine(\"CHAVE 13: \" + maior);\n    }\n}"
+    },
+    {
+      "id": "q14",
+      "moduloId": "mod14",
+      "titulo": "Linhagens de Robô",
+      "enunciado": "Crie a classe base Robo, com o Nome e um método Apresentar() que exibe:\n\nRobo Alfa em operacao\n\nDepois crie DUAS classes que herdam de Robo:\n\nRoboSoldado — método Atacar() que exibe \"NOME abriu fogo\"\nRoboMedico — método Curar() que exibe \"NOME aplicou reparo\"\n\nCrie três robôs: um Robo chamado Alfa, um RoboSoldado chamado Bravo e um RoboMedico chamado Charlie. Chame Apresentar() nos três (a herança faz o método existir nos filhos) e depois a habilidade própria de cada filho.\n\nA CHAVE 14 é a quantidade de robôs criados multiplicada por 100.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 30,
+      "dica1": "Herdar é dizer \"esta classe é um tipo de\" outra: ela ganha tudo o que a mãe tem e acrescenta o que é seu.",
+      "dica2": "Escreva class RoboSoldado : Robo { ... } — os dois pontos indicam a classe-mãe.",
+      "dica3": "Se a mãe tiver construtor com parâmetro, o filho repassa: public RoboSoldado(string nome) : base(nome) { }",
+      "requisitos": [
+        "estrutura:classe",
+        "estrutura:heranca",
+        "estrutura:objeto",
+        "estrutura:metodo",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "as três linhagens",
+          "entradas": [],
+          "saidaEsperada": "robo alfa em operacao",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "robo bravo em operacao",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "robo charlie em operacao",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "bravo abriu fogo",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "charlie aplicou reparo",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 14: 300",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Robo\n{\n    public string Nome { get; set; }\n\n    public Robo(string nome)\n    {\n        Nome = nome;\n    }\n\n    public void Apresentar()\n    {\n        Console.WriteLine(\"Robo \" + Nome + \" em operacao\");\n    }\n}\n\nclass RoboSoldado : Robo\n{\n    public RoboSoldado(string nome) : base(nome) { }\n\n    public void Atacar()\n    {\n        Console.WriteLine(Nome + \" abriu fogo\");\n    }\n}\n\nclass RoboMedico : Robo\n{\n    public RoboMedico(string nome) : base(nome) { }\n\n    public void Curar()\n    {\n        Console.WriteLine(Nome + \" aplicou reparo\");\n    }\n}\n\nclass Program\n{\n    static void Main()\n    {\n        Robo alfa = new Robo(\"Alfa\");\n        RoboSoldado bravo = new RoboSoldado(\"Bravo\");\n        RoboMedico charlie = new RoboMedico(\"Charlie\");\n\n        alfa.Apresentar();\n        bravo.Apresentar();\n        charlie.Apresentar();\n\n        bravo.Atacar();\n        charlie.Curar();\n\n        Console.WriteLine(\"CHAVE 14: \" + (3 * 100));\n    }\n}"
+    },
+    {
+      "id": "q15",
+      "moduloId": "mod15",
+      "titulo": "Comando Único",
+      "enunciado": "Na classe base Robo, crie o método Atacar() marcado como virtual, exibindo:\n\nNOME ataca sem arma\n\nNas classes filhas, sobrescreva esse método com override:\n\nRoboSoldado → \"NOME dispara o canhao\"\nRoboMedico → \"NOME aplica choque eletrico\"\n\nColoque QUATRO robôs em uma List<Robo> — Alfa (Robo), Bravo (RoboSoldado), Charlie (RoboMedico) e Delta (RoboSoldado) — e percorra a lista chamando Atacar() em cada um. Mesmo comando, respostas diferentes: isso é polimorfismo.\n\nA CHAVE 15 é a quantidade de ataques executados, contada dentro do laço.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 30,
+      "dica1": "A mãe marca o método como virtual (pode ser trocado); a filha marca como override (estou trocando).",
+      "dica2": "A lista é declarada como List<Robo>, mas cada posição pode guardar um filho — na hora da chamada, vale o método do filho.",
+      "dica3": "foreach (Robo r in robos) { r.Atacar(); ataques++; }",
+      "requisitos": [
+        "estrutura:heranca",
+        "estrutura:virtual",
+        "estrutura:polimorfismo",
+        "estrutura:list",
+        "estrutura:acumulador"
+      ],
+      "casos": [
+        {
+          "descricao": "a rebelião dos quatro",
+          "entradas": [],
+          "saidaEsperada": "alfa ataca sem arma",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "bravo dispara o canhao",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "charlie aplica choque eletrico",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "delta dispara o canhao",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 15: 4",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\nusing System.Collections.Generic;\n\nclass Robo\n{\n    public string Nome { get; set; }\n\n    public Robo(string nome)\n    {\n        Nome = nome;\n    }\n\n    public virtual void Atacar()\n    {\n        Console.WriteLine(Nome + \" ataca sem arma\");\n    }\n}\n\nclass RoboSoldado : Robo\n{\n    public RoboSoldado(string nome) : base(nome) { }\n\n    public override void Atacar()\n    {\n        Console.WriteLine(Nome + \" dispara o canhao\");\n    }\n}\n\nclass RoboMedico : Robo\n{\n    public RoboMedico(string nome) : base(nome) { }\n\n    public override void Atacar()\n    {\n        Console.WriteLine(Nome + \" aplica choque eletrico\");\n    }\n}\n\nclass Program\n{\n    static void Main()\n    {\n        List<Robo> robos = new List<Robo>();\n        robos.Add(new Robo(\"Alfa\"));\n        robos.Add(new RoboSoldado(\"Bravo\"));\n        robos.Add(new RoboMedico(\"Charlie\"));\n        robos.Add(new RoboSoldado(\"Delta\"));\n\n        int ataques = 0;\n\n        foreach (Robo r in robos)\n        {\n            r.Atacar();\n            ataques++;\n        }\n\n        Console.WriteLine(\"CHAVE 15: \" + ataques);\n    }\n}"
+    },
+    {
+      "id": "q16",
+      "moduloId": "mod16",
+      "titulo": "Molde Incompleto",
+      "enunciado": "Transforme Robo em uma classe ABSTRATA, com o método Ativar() declarado como abstrato (sem corpo — só a assinatura).\n\nCrie duas classes derivadas que obrigatoriamente implementam Ativar():\n\nRoboSoldado → \"NOME ativado em modo combate\"\nRoboMedico → \"NOME ativado em modo suporte\"\n\nColoque três robôs numa List<Robo> — Bravo e Delta (soldados) e Charlie (médico) — e ative todos percorrendo a lista.\n\nA CHAVE 16 é a quantidade de robôs ativos, obtida da própria lista.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 30,
+      "dica1": "Uma classe abstrata é um contrato incompleto: serve de base, mas não pode virar objeto sozinha.",
+      "dica2": "abstract class Robo { ... public abstract void Ativar(); } — repare que o método termina em ponto e vírgula, sem chaves.",
+      "dica3": "Cada filha precisa escrever public override void Ativar() { ... }, senão o código nem compila.",
+      "requisitos": [
+        "estrutura:abstrata",
+        "estrutura:heranca",
+        "estrutura:polimorfismo",
+        "estrutura:list",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "ativação no núcleo",
+          "entradas": [],
+          "saidaEsperada": "bravo ativado em modo combate",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "delta ativado em modo combate",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "charlie ativado em modo suporte",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 16: 3",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\nusing System.Collections.Generic;\n\nabstract class Robo\n{\n    public string Nome { get; set; }\n\n    public Robo(string nome)\n    {\n        Nome = nome;\n    }\n\n    public abstract void Ativar();\n}\n\nclass RoboSoldado : Robo\n{\n    public RoboSoldado(string nome) : base(nome) { }\n\n    public override void Ativar()\n    {\n        Console.WriteLine(Nome + \" ativado em modo combate\");\n    }\n}\n\nclass RoboMedico : Robo\n{\n    public RoboMedico(string nome) : base(nome) { }\n\n    public override void Ativar()\n    {\n        Console.WriteLine(Nome + \" ativado em modo suporte\");\n    }\n}\n\nclass Program\n{\n    static void Main()\n    {\n        List<Robo> robos = new List<Robo>();\n        robos.Add(new RoboSoldado(\"Bravo\"));\n        robos.Add(new RoboSoldado(\"Delta\"));\n        robos.Add(new RoboMedico(\"Charlie\"));\n\n        foreach (Robo r in robos)\n        {\n            r.Ativar();\n        }\n\n        Console.WriteLine(\"CHAVE 16: \" + robos.Count);\n    }\n}"
+    },
+    {
+      "id": "q17",
+      "moduloId": "mod17",
+      "titulo": "Habilidade Extra",
+      "enunciado": "Crie a interface IHackeavel com um único método: void Hackear();\n\nFaça com que ALGUNS robôs implementem essa interface, exibindo ao hackear:\n\nNOME invadiu o sistema\n\nMonte uma List<Robo> com quatro robôs, dos quais exatamente DOIS implementam IHackeavel. Percorra a lista e, para cada robô que for hackeável, execute Hackear() e conte.\n\nA CHAVE 17 é a quantidade de robôs hackeáveis encontrados na lista.\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.",
+      "pontosBase": 30,
+      "dica1": "A interface é uma lista de habilidades exigidas: quem assina precisa implementar todos os métodos dela.",
+      "dica2": "interface IHackeavel { void Hackear(); } e depois class RoboEspiao : Robo, IHackeavel — a classe-mãe vem primeiro.",
+      "dica3": "Dentro do foreach: if (r is IHackeavel) { IHackeavel h = (IHackeavel)r; h.Hackear(); total++; }",
+      "requisitos": [
+        "estrutura:interface",
+        "estrutura:heranca",
+        "estrutura:list",
+        "estrutura:acumulador",
+        "estrutura:if"
+      ],
+      "casos": [
+        {
+          "descricao": "varredura de habilidades",
+          "entradas": [],
+          "saidaEsperada": "invadiu o sistema",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave 17: 2",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\nusing System.Collections.Generic;\n\ninterface IHackeavel\n{\n    void Hackear();\n}\n\nclass Robo\n{\n    public string Nome { get; set; }\n\n    public Robo(string nome)\n    {\n        Nome = nome;\n    }\n}\n\nclass RoboSoldado : Robo\n{\n    public RoboSoldado(string nome) : base(nome) { }\n}\n\nclass RoboEspiao : Robo, IHackeavel\n{\n    public RoboEspiao(string nome) : base(nome) { }\n\n    public void Hackear()\n    {\n        Console.WriteLine(Nome + \" invadiu o sistema\");\n    }\n}\n\nclass Program\n{\n    static void Main()\n    {\n        List<Robo> robos = new List<Robo>();\n        robos.Add(new RoboSoldado(\"Bravo\"));\n        robos.Add(new RoboEspiao(\"Eco\"));\n        robos.Add(new RoboSoldado(\"Delta\"));\n        robos.Add(new RoboEspiao(\"Fox\"));\n\n        int total = 0;\n\n        foreach (Robo r in robos)\n        {\n            if (r is IHackeavel)\n            {\n                IHackeavel h = (IHackeavel)r;\n                h.Hackear();\n                total++;\n            }\n        }\n\n        Console.WriteLine(\"CHAVE 17: \" + total);\n    }\n}"
+    },
+    {
+      "id": "q18",
+      "moduloId": "mod18",
+      "titulo": "Divisão Protegida",
+      "enunciado": "O console lê dois números inteiros, um por linha: o total de energia e o número de setores.\n\nDivida o primeiro pelo segundo DENTRO de um bloco protegido:\n\n• deu certo → exiba \"resultado: X\"\n• deu erro → exiba \"erro: divisao por zero\" e considere o resultado 0\n• em qualquer um dos casos → exiba, por último antes da chave, \"sistema estavel\"\n\nA linha \"sistema estavel\" precisa aparecer sempre, inclusive quando dá erro — use o bloco que roda de qualquer jeito.\n\nA CHAVE 18 é o resultado da divisão (ou 0, se houve erro).\n\nA última linha do programa deve ser a chave desta missão, no formato \"CHAVE N: valor\" — e o valor precisa ser CALCULADO pelo programa, nunca digitado direto.\n\nEVA confere linha por linha: imprima exatamente as linhas pedidas, na ordem pedida, e nada além disso.",
+      "pontosBase": 30,
+      "dica1": "try guarda o trecho que pode falhar; catch recebe o problema; finally roda sempre, dando certo ou errado.",
+      "dica2": "Dividir um inteiro por zero lança DivideByZeroException — é ela que o catch deve capturar.",
+      "dica3": "try { resultado = a / b; ... } catch (DivideByZeroException) { resultado = 0; ... } finally { Console.WriteLine(\"sistema estavel\"); }",
+      "requisitos": [
+        "estrutura:leitura",
+        "estrutura:conversao",
+        "estrutura:excecao",
+        "estrutura:finally"
+      ],
+      "casos": [
+        {
+          "descricao": "divisão válida (a leitura do reator)",
+          "entradas": [
+            "100",
+            "5"
+          ],
+          "saidaEsperada": "resultado: 20\nsistema estavel\nchave 18: 20",
+          "modo": "exata",
+          "oficial": true
+        },
+        {
+          "descricao": "setores zerados: o reator tenta dividir por zero",
+          "entradas": [
+            "100",
+            "0"
+          ],
+          "saidaEsperada": "erro: divisao por zero\nsistema estavel\nchave 18: 0",
+          "modo": "exata"
+        },
+        {
+          "descricao": "outra divisão válida",
+          "entradas": [
+            "81",
+            "9"
+          ],
+          "saidaEsperada": "resultado: 9\nsistema estavel\nchave 18: 9",
+          "modo": "exata"
+        }
+      ],
+      "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        int energia = int.Parse(Console.ReadLine());\n        int setores = int.Parse(Console.ReadLine());\n        int resultado = 0;\n\n        try\n        {\n            resultado = energia / setores;\n            Console.WriteLine(\"resultado: \" + resultado);\n        }\n        catch (DivideByZeroException)\n        {\n            resultado = 0;\n            Console.WriteLine(\"erro: divisao por zero\");\n        }\n        finally\n        {\n            Console.WriteLine(\"sistema estavel\");\n        }\n\n        Console.WriteLine(\"CHAVE 18: \" + resultado);\n    }\n}"
+    },
+    {
+      "id": "q19",
+      "moduloId": "mod19",
+      "titulo": "O Confronto",
+      "enunciado": "Escreva UM programa que reúna tudo o que a campanha ensinou:\n\n1) Uma classe base Robo (com Nome) e pelo menos duas classes que herdam dela, cada uma sobrescrevendo o método Agir() com override:\n   RoboSoldado → \"NOME executa ataque\"\n   RoboMedico → \"NOME executa reparo\"\n\n2) Guarde os robôs em uma List<Robo> e faça cada um agir percorrendo a lista (polimorfismo). Use pelo menos um soldado e um médico.\n\n3) Um Dictionary<string, int> com os códigos de acesso do núcleo:\n   Nucleo → 77\n   Saida → 23\n   Exiba cada par no formato \"Nucleo -> 77\".\n\n4) As 18 chaves conquistadas na campanha, guardadas em uma coleção:\n   30, 151, 38, 10, 11, 20, 8, 73, 34, 58, 100, 180, 95, 300, 4, 3, 2, 20\n   Some todas com um laço — nada de digitar o total pronto.\n\n5) Proteja o cálculo final com try/catch: dentro do try, divida a soma das chaves pela quantidade de códigos do dicionário e exiba \"media por codigo: X\" (divisão inteira). Se algo falhar, exiba \"falha no calculo\".\n\nPor fim, exiba exatamente:\n\n=================================\n   SISTEMA OMEGA DESATIVADO\n=================================\nCHAVE FINAL: 1137\nParabens!\nVoce escapou do Complexo OMEGA.",
+      "pontosBase": 50,
+      "dica1": "Monte por partes e vá testando com o botão EXECUTAR: primeiro as classes e a lista, depois o dicionário, depois a soma das chaves, e por último o bloco protegido e o banner.",
+      "dica2": "A soma das chaves é um acumulador dentro de um foreach sobre o array de chaves. A média é somaDasChaves / codigos.Count — as duas são divisões inteiras.",
+      "dica3": "int[] chaves = { 30, 151, 38, 10, ... }; int soma = 0; foreach (int c in chaves) soma += c; e no fim Console.WriteLine(\"CHAVE FINAL: \" + soma);",
+      "requisitos": [
+        "estrutura:classe",
+        "estrutura:heranca",
+        "estrutura:polimorfismo",
+        "estrutura:objeto",
+        "estrutura:list",
+        "estrutura:dicionario",
+        "estrutura:excecao",
+        "estrutura:acumulador",
+        "estrutura:saida"
+      ],
+      "casos": [
+        {
+          "descricao": "confronto final",
+          "entradas": [],
+          "saidaEsperada": "executa ataque",
+          "modo": "contem",
+          "oficial": true
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "executa reparo",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "nucleo -> 77",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "saida -> 23",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "media por codigo: 568",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "sistema omega desativado",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "chave final: 1137",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "voce escapou do complexo omega.",
+          "modo": "contem"
+        }
+      ],
+      "gabarito": "using System;\nusing System.Collections.Generic;\n\nclass Robo\n{\n    public string Nome { get; set; }\n\n    public Robo(string nome)\n    {\n        Nome = nome;\n    }\n\n    public virtual void Agir()\n    {\n        Console.WriteLine(Nome + \" aguarda ordens\");\n    }\n}\n\nclass RoboSoldado : Robo\n{\n    public RoboSoldado(string nome) : base(nome) { }\n\n    public override void Agir()\n    {\n        Console.WriteLine(Nome + \" executa ataque\");\n    }\n}\n\nclass RoboMedico : Robo\n{\n    public RoboMedico(string nome) : base(nome) { }\n\n    public override void Agir()\n    {\n        Console.WriteLine(Nome + \" executa reparo\");\n    }\n}\n\nclass Program\n{\n    static void Main()\n    {\n        List<Robo> robos = new List<Robo>();\n        robos.Add(new RoboSoldado(\"Bravo\"));\n        robos.Add(new RoboMedico(\"Charlie\"));\n\n        foreach (Robo r in robos)\n        {\n            r.Agir();\n        }\n\n        Dictionary<string, int> codigos = new Dictionary<string, int>();\n        codigos.Add(\"Nucleo\", 77);\n        codigos.Add(\"Saida\", 23);\n\n        foreach (KeyValuePair<string, int> c in codigos)\n        {\n            Console.WriteLine(c.Key + \" -> \" + c.Value);\n        }\n\n        int[] chaves = { 30, 151, 38, 10, 11, 20, 8, 73, 34, 58, 100, 180, 95, 300, 4, 3, 2, 20 };\n        int soma = 0;\n\n        foreach (int c in chaves)\n        {\n            soma += c;\n        }\n\n        try\n        {\n            int media = soma / codigos.Count;\n            Console.WriteLine(\"media por codigo: \" + media);\n        }\n        catch (DivideByZeroException)\n        {\n            Console.WriteLine(\"falha no calculo\");\n        }\n\n        Console.WriteLine(\"=================================\");\n        Console.WriteLine(\"   SISTEMA OMEGA DESATIVADO\");\n        Console.WriteLine(\"=================================\");\n        Console.WriteLine(\"CHAVE FINAL: \" + soma);\n        Console.WriteLine(\"Parabens!\");\n        Console.WriteLine(\"Voce escapou do Complexo OMEGA.\");\n    }\n}"
+    }
+  ]
+}

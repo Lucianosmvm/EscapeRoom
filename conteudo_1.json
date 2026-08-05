@@ -1,5 +1,8 @@
 {
-  "meta": { "nome": "Conteúdo 1 — Exemplo (Variáveis e Tipos)" },
+  "meta": {
+    "nome": "Conteúdo 1 — Exemplo (Variáveis e Tipos)",
+    "codigo": "EXEMPLO"
+  },
   "modulos": [
     {
       "id": "mod1",
@@ -19,11 +22,30 @@
       "dica1": "Pense em qual tipo combina com texto e qual combina com número inteiro.",
       "dica2": "São três variáveis e três comandos de exibição, um por linha.",
       "dica3": "string nome = \"João\"; int idade = 20; int matricula = 1042; e depois Console.WriteLine(\"nome: \" + nome); para cada uma.",
-      "requisitos": ["tipo:string", "tipo:int", "estrutura:saida"],
+      "requisitos": [
+        "tipo:string",
+        "tipo:int",
+        "estrutura:saida"
+      ],
       "casos": [
-        { "descricao": "ficha do João", "entradas": [], "saidaEsperada": "nome: joão", "modo": "contem" },
-        { "descricao": "", "entradas": [], "saidaEsperada": "idade: 20", "modo": "contem" },
-        { "descricao": "", "entradas": [], "saidaEsperada": "matricula: 1042", "modo": "contem" }
+        {
+          "descricao": "ficha do João",
+          "entradas": [],
+          "saidaEsperada": "nome: joão",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "idade: 20",
+          "modo": "contem"
+        },
+        {
+          "descricao": "",
+          "entradas": [],
+          "saidaEsperada": "matricula: 1042",
+          "modo": "contem"
+        }
       ],
       "gabarito": "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        string nome = \"João\";\n        int idade = 20;\n        int matricula = 1042;\n\n        Console.WriteLine(\"nome: \" + nome);\n        Console.WriteLine(\"idade: \" + idade);\n        Console.WriteLine(\"matricula: \" + matricula);\n    }\n}"
     }

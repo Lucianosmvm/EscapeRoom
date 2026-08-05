@@ -38,6 +38,49 @@ function CsErro(msg, linha) {
 CsErro.prototype.toString = function () { return this.message; };
 function erro(msg, linha) { throw new CsErro(msg, linha); }
 
+/* Exceção do programa do aluno: pode ser capturada por try/catch.
+   Os erros de execução do C# (divisão por zero, Parse inválido, índice fora
+   dos limites, uso de nulo) viram exceções do tipo correspondente. */
+function CsExcecao(tipo, mensagem, linha) {
+  this.name = 'CsExcecao';
+  this.tipo = tipo || 'Exception';
+  this.mensagem = mensagem || '';
+  this.linha = linha || null;
+  this.message = mensagem || '';
+  this.valor = null; // objeto da exceção, quando criado com "new"
+}
+function lancar(tipo, mensagem, linha) { throw new CsExcecao(tipo, mensagem, linha); }
+
+/* hierarquia simplificada das exceções da biblioteca padrão */
+var HIERARQUIA_EXCECAO = {
+  Exception: null,
+  SystemException: 'Exception',
+  ArithmeticException: 'SystemException',
+  DivideByZeroException: 'ArithmeticException',
+  OverflowException: 'ArithmeticException',
+  FormatException: 'SystemException',
+  ArgumentException: 'SystemException',
+  ArgumentNullException: 'ArgumentException',
+  ArgumentOutOfRangeException: 'ArgumentException',
+  IndexOutOfRangeException: 'SystemException',
+  NullReferenceException: 'SystemException',
+  InvalidOperationException: 'SystemException',
+  KeyNotFoundException: 'SystemException',
+  NotImplementedException: 'SystemException'
+};
+function excecaoCompativel(tipoLancado, tipoCatch) {
+  if (!tipoCatch || tipoCatch === 'Exception') return true;
+  var t = tipoLancado;
+  while (t) {
+    if (t === tipoCatch) return true;
+    t = Object.prototype.hasOwnProperty.call(HIERARQUIA_EXCECAO, t) ? HIERARQUIA_EXCECAO[t] : null;
+  }
+  return false;
+}
+function ehTipoExcecao(nome) {
+  return Object.prototype.hasOwnProperty.call(HIERARQUIA_EXCECAO, nome);
+}
+
 /* ===================== LÉXICO ===================== */
 var PALAVRAS = ['int','long','short','byte','uint','double','float','decimal',
   'string','bool','char','object','var','if','else','while','do','for','foreach',
@@ -247,11 +290,17 @@ Parser.prototype.tentarTipo = function () {
   var generico = null;
   if (this.eh('op', '<')) {
     // pode ser genérico OU comparação — só aceita se fechar com > sem quebrar
-    var salvoG = this.i;
     this.i++;
-    var interno = this.tentarTipo();
-    if (interno && this.pegar('op', '>')) { generico = interno; }
-    else { this.i = salvoG; this.i = salvo; return null; }
+    var args = [], ok = true;
+    while (true) {
+      var interno = this.tentarTipo();
+      if (!interno) { ok = false; break; }
+      args.push(interno);
+      if (this.pegar('op', ',')) continue;
+      break;
+    }
+    if (ok && this.pegar('op', '>')) generico = args;
+    else { this.i = salvo; return null; }
   }
   if (this.eh('op', '?')) {
     // nullable: só aceita se o próximo for identificador (evita confundir com ternário)
@@ -277,14 +326,175 @@ Parser.prototype.ehDeclaracao = function () {
 
 /* ---- unidade de compilação ---- */
 Parser.prototype.parsePrograma = function () {
-  var topo = [], metodos = {};
+  var topo = [], metodos = {}, tipos = {};
   while (!this.fim()) {
-    this.parseMembro(topo, metodos);
+    this.parseMembro(topo, metodos, tipos);
   }
-  return { topo: topo, metodos: metodos };
+  return { topo: topo, metodos: metodos, tipos: tipos };
 };
 
-Parser.prototype.parseMembro = function (topo, metodos) {
+var MODIFICADORES = ['public', 'private', 'protected', 'internal', 'static', 'sealed',
+  'abstract', 'partial', 'override', 'virtual', 'readonly', 'const', 'new'];
+
+Parser.prototype.parseModificadores = function () {
+  var mods = [];
+  while (this.atual().tipo === 'kw' && MODIFICADORES.indexOf(this.atual().valor) >= 0) {
+    mods.push(this.atual().valor);
+    this.i++;
+  }
+  return mods;
+};
+
+/* class / struct / interface: declaração completa (campos, propriedades,
+   construtores, métodos, herança e implementação de interfaces) */
+Parser.prototype.parseTipoDecl = function (mods, tipos) {
+  var ehInterface = this.eh('kw', 'interface');
+  var ehEnum = this.eh('kw', 'enum');
+  this.i++;
+  var nome = this.exigir('ident', undefined, 'Esperava o nome da classe.').valor;
+  if (this.eh('op', '<')) { while (!this.fim() && !this.eh('op', '>')) this.i++; this.pegar('op', '>'); }
+
+  var bases = [];
+  if (this.pegar('op', ':')) {
+    do {
+      var tb = this.tentarTipo();
+      if (tb) bases.push(tb.nome);
+    } while (this.pegar('op', ','));
+  }
+  // where T : ... (restrições genéricas) -> ignora
+  while (this.eh('ident', 'where')) { while (!this.fim() && !this.eh('op', '{')) this.i++; }
+
+  var decl = {
+    nome: nome, ehInterface: ehInterface, ehEnum: ehEnum,
+    abstrata: mods.indexOf('abstract') >= 0,
+    bases: bases, campos: [], props: {}, metodos: {}, ctores: [], estaticos: {}
+  };
+  this.exigir('op', '{');
+  if (ehEnum) {
+    var v = 0;
+    while (!this.fim() && !this.eh('op', '}')) {
+      var nomeE = this.exigir('ident').valor;
+      if (this.pegar('op', '=')) { var num = this.pegar('numero'); if (num) v = num.valor.valor; }
+      decl.campos.push({ nome: nomeE, estatico: true, init: { k: 'num', v: v, decimal: false, linha: this.linha() } });
+      v++;
+      if (!this.pegar('op', ',')) break;
+    }
+  } else {
+    while (!this.fim() && !this.eh('op', '}')) this.parseMembroClasse(decl, tipos);
+  }
+  this.exigir('op', '}', 'Faltou fechar a chave "}" da classe ' + nome + '.');
+  tipos[nome] = decl;
+  return decl;
+};
+
+Parser.prototype.parseMembroClasse = function (decl, tipos) {
+  if (this.pegar('op', ';')) return;
+  var mods = this.parseModificadores();
+
+  // classe aninhada
+  if (this.eh('kw', 'class') || this.eh('kw', 'struct') || this.eh('kw', 'interface') || this.eh('kw', 'enum')) {
+    this.parseTipoDecl(mods, tipos);
+    return;
+  }
+
+  var estatico = mods.indexOf('static') >= 0;
+  var abstrato = mods.indexOf('abstract') >= 0;
+  var virtualOuOverride = mods.indexOf('virtual') >= 0 || mods.indexOf('override') >= 0;
+
+  // construtor:  Nome ( ... )
+  if (this.eh('ident', decl.nome) && this.espiar(1) && this.espiar(1).tipo === 'op' && this.espiar(1).valor === '(') {
+    this.i++;
+    var params = this.parseParametros();
+    var encadeia = null;
+    if (this.pegar('op', ':')) {
+      var alvoEnc = this.atual().valor; // base | this
+      this.i++;
+      var argsEnc = [];
+      this.exigir('op', '(');
+      while (!this.eh('op', ')')) { argsEnc.push(this.parseExpressao()); if (!this.pegar('op', ',')) break; }
+      this.exigir('op', ')');
+      encadeia = { alvo: alvoEnc, args: argsEnc };
+    }
+    var corpoC = this.eh('op', '{') ? this.parseBloco().corpo : (this.pegar('op', ';'), []);
+    decl.ctores.push({ params: params, corpo: corpoC, encadeia: encadeia });
+    return;
+  }
+
+  var tipo = this.tentarTipo();
+  if (!tipo) erro('Não entendi este membro da classe ' + decl.nome + '.', this.linha());
+
+  var nomeM = this.atual();
+  if (nomeM.tipo !== 'ident' && nomeM.tipo !== 'kw') {
+    erro('Esperava o nome de um membro da classe ' + decl.nome + '.', this.linha());
+  }
+  this.i++;
+  var nome = nomeM.valor;
+
+  // método
+  if (this.eh('op', '(')) {
+    var ps = this.parseParametros();
+    var corpo = null;
+    if (this.eh('op', '{')) corpo = this.parseBloco().corpo;
+    else if (this.pegar('op', '=>')) { var ex = this.parseExpressao(); this.pegar('op', ';'); corpo = [{ k: 'retorne', e: ex, linha: nomeM.linha }]; }
+    else this.pegar('op', ';');
+    var lista = decl.metodos[nome] || (decl.metodos[nome] = []);
+    lista.push({
+      nome: nome, params: ps, corpo: corpo, retorno: tipo,
+      estatico: estatico, abstrato: abstrato || corpo === null, virtual: virtualOuOverride
+    });
+    return;
+  }
+
+  // propriedade
+  if (this.eh('op', '{')) {
+    this.i++;
+    var prop = { nome: nome, tipo: tipo, auto: true, get: null, set: null, temGet: false, temSet: false, estatico: estatico };
+    while (!this.fim() && !this.eh('op', '}')) {
+      this.parseModificadores();
+      var ac = this.atual();
+      if (ac.tipo !== 'ident') erro('Esperava get ou set na propriedade ' + nome + '.', ac.linha);
+      this.i++;
+      if (ac.valor === 'get') {
+        prop.temGet = true;
+        if (this.eh('op', '{')) { prop.get = this.parseBloco().corpo; prop.auto = false; }
+        else if (this.pegar('op', '=>')) { var eg = this.parseExpressao(); this.pegar('op', ';'); prop.get = [{ k: 'retorne', e: eg, linha: ac.linha }]; prop.auto = false; }
+        else this.pegar('op', ';');
+      } else if (ac.valor === 'set') {
+        prop.temSet = true;
+        if (this.eh('op', '{')) { prop.set = this.parseBloco().corpo; prop.auto = false; }
+        else this.pegar('op', ';');
+      } else {
+        erro('Só entendo get e set dentro de uma propriedade.', ac.linha);
+      }
+    }
+    this.exigir('op', '}');
+    if (this.pegar('op', '=')) { prop.init = this.parseExpressao(); this.pegar('op', ';'); }
+    decl.props[nome] = prop;
+    return;
+  }
+
+  // propriedade com corpo de expressão:  public int X => ...;
+  if (this.pegar('op', '=>')) {
+    var ee = this.parseExpressao();
+    this.pegar('op', ';');
+    decl.props[nome] = { nome: nome, tipo: tipo, auto: false, temGet: true, temSet: false,
+      get: [{ k: 'retorne', e: ee, linha: nomeM.linha }], estatico: estatico };
+    return;
+  }
+
+  // campo(s)
+  var atual = nome;
+  while (true) {
+    var init = null;
+    if (this.pegar('op', '=')) init = this.eh('op', '{') ? this.parseInicializadorLista() : this.parseExpressao();
+    decl.campos.push({ nome: atual, tipo: tipo, init: init, estatico: estatico });
+    if (!this.pegar('op', ',')) break;
+    atual = this.exigir('ident').valor;
+  }
+  this.pegar('op', ';');
+};
+
+Parser.prototype.parseMembro = function (topo, metodos, tipos) {
   // using ...;
   if (this.eh('kw', 'using')) {
     while (!this.fim() && !this.eh('op', ';')) this.i++;
@@ -297,28 +507,29 @@ Parser.prototype.parseMembro = function (topo, metodos) {
     while (!this.fim() && !this.eh('op', '{') && !this.eh('op', ';')) this.i++;
     if (this.pegar('op', ';')) return;
     this.exigir('op', '{');
-    while (!this.fim() && !this.eh('op', '}')) this.parseMembro(topo, metodos);
+    while (!this.fim() && !this.eh('op', '}')) this.parseMembro(topo, metodos, tipos);
     this.exigir('op', '}');
     return;
   }
-  // modificadores
   var salvo = this.i;
-  var mods = 0;
-  while (this.atual().tipo === 'kw' &&
-         ['public', 'private', 'protected', 'internal', 'static', 'sealed', 'abstract',
-          'partial', 'override', 'virtual', 'readonly'].indexOf(this.atual().valor) >= 0) {
-    this.i++; mods++;
-  }
+  var mods = this.parseModificadores();
+
   // class / struct / enum / interface
   if (this.eh('kw', 'class') || this.eh('kw', 'struct') || this.eh('kw', 'interface') || this.eh('kw', 'enum')) {
-    this.i++;
-    while (!this.fim() && !this.eh('op', '{')) this.i++;
-    this.exigir('op', '{');
-    while (!this.fim() && !this.eh('op', '}')) this.parseMembro(topo, metodos);
-    this.exigir('op', '}');
+    var decl = this.parseTipoDecl(mods, tipos);
+    // métodos estáticos de qualquer classe também ficam acessíveis sem qualificar,
+    // que é como o aluno escreve dentro da própria Program
+    Object.keys(decl.metodos).forEach(function (n) {
+      decl.metodos[n].forEach(function (m) {
+        if (m.estatico && m.corpo && !metodos[n]) {
+          metodos[n] = { nome: n, params: m.params, corpo: m.corpo, retorno: m.retorno, classe: decl.nome };
+        }
+      });
+    });
     return;
   }
-  // método?  TIPO Nome ( ... ) { ... }
+
+  // método solto no topo do arquivo:  TIPO Nome ( ... ) { ... }
   var salvoM = this.i;
   var tipoRet = this.tentarTipo();
   if (tipoRet && this.eh('ident') && this.espiar(1) && this.espiar(1).tipo === 'op' && this.espiar(1).valor === '(') {
@@ -332,8 +543,7 @@ Parser.prototype.parseMembro = function (topo, metodos) {
     if (this.pegar('op', ';')) return; // assinatura sem corpo
   }
   this.i = salvoM;
-  if (mods) {
-    // era campo de classe com modificador -> trata como declaração normal
+  if (mods.length) {
     topo.push(this.parseComando());
     return;
   }
@@ -465,19 +675,31 @@ Parser.prototype.parseComando = function () {
   }
   if (this.eh('kw', 'throw')) {
     this.i++;
-    while (!this.fim() && !this.eh('op', ';')) this.i++;
+    var alvoThrow = this.eh('op', ';') ? null : this.parseExpressao();
     this.pegar('op', ';');
-    return { k: 'vazio', linha: ln };
+    return { k: 'lancar', e: alvoThrow, linha: ln };
   }
   if (this.eh('kw', 'try')) {
     this.i++;
-    var b = this.parseBloco();
+    var corpoTry = this.parseBloco().corpo;
+    var capturas = [], finalmente = null;
     while (this.eh('kw', 'catch') || this.eh('kw', 'finally')) {
-      this.i++;
-      if (this.eh('op', '(')) { var d = 0; do { if (this.eh('op', '(')) d++; if (this.eh('op', ')')) d--; this.i++; } while (d > 0 && !this.fim()); }
-      this.parseBloco();
+      if (this.pegar('kw', 'catch')) {
+        var tipoEx = null, nomeEx = null;
+        if (this.pegar('op', '(')) {
+          var tx = this.tentarTipo();
+          tipoEx = tx ? tx.nome : null;
+          if (this.eh('ident')) nomeEx = this.pegar('ident').valor;
+          this.exigir('op', ')');
+        }
+        if (this.eh('ident', 'when')) { this.i++; this.exigir('op', '('); this.parseExpressao(); this.exigir('op', ')'); }
+        capturas.push({ tipo: tipoEx, nome: nomeEx, corpo: this.parseBloco().corpo });
+      } else {
+        this.i++;
+        finalmente = this.parseBloco().corpo;
+      }
     }
-    return b;
+    return { k: 'tentar', corpo: corpoTry, capturas: capturas, finalmente: finalmente, linha: ln };
   }
 
   if (this.ehDeclaracao()) return this.parseDeclaracao(false);
@@ -560,7 +782,26 @@ function nivelBinario(nome, ops, proximo) {
 nivelBinario('parseOu', ['||'], 'parseE');
 nivelBinario('parseE', ['&&'], 'parseIgualdade');
 nivelBinario('parseIgualdade', ['==', '!='], 'parseRelacional');
-nivelBinario('parseRelacional', ['<', '>', '<=', '>='], 'parseSoma');
+
+/* relacional + operadores de tipo (is / as) */
+Parser.prototype.parseRelacional = function () {
+  var e = this.parseSoma();
+  while (true) {
+    var a = this.atual();
+    if (a.tipo === 'op' && ['<', '>', '<=', '>='].indexOf(a.valor) >= 0) {
+      this.i++;
+      e = { k: 'bin', op: a.valor, esq: e, dir: this.parseSoma(), linha: a.linha };
+    } else if (a.tipo === 'ident' && (a.valor === 'is' || a.valor === 'as')) {
+      this.i++;
+      var t = this.tentarTipo();
+      if (!t) erro('Esperava um tipo depois de "' + a.valor + '".', a.linha);
+      var apelido = null;
+      if (a.valor === 'is' && this.eh('ident')) apelido = this.pegar('ident').valor;
+      e = { k: a.valor === 'is' ? 'ehTipo' : 'comoTipo', e: e, tipo: t.nome, apelido: apelido, linha: a.linha };
+    } else break;
+  }
+  return e;
+};
 nivelBinario('parseSoma', ['+', '-'], 'parseProduto');
 nivelBinario('parseProduto', ['*', '/', '%'], 'parseUnario');
 
@@ -576,11 +817,20 @@ Parser.prototype.parseUnario = function () {
     this.i++;
     return { k: 'pre', op: a.valor, e: this.parseUnario(), linha: a.linha };
   }
-  // cast: (int)x
+  // cast: (int)x  e também (Robo)x / (IHackeavel)x
   if (a.tipo === 'op' && a.valor === '(') {
-    var p1 = this.espiar(1), p2 = this.espiar(2);
-    if (p1 && p1.tipo === 'kw' && TIPOS_CAST.indexOf(p1.valor) >= 0 &&
-        p2 && p2.tipo === 'op' && p2.valor === ')') {
+    var p1 = this.espiar(1), p2 = this.espiar(2), p3 = this.espiar(3);
+    var ehTipoPrimitivo = p1 && p1.tipo === 'kw' && TIPOS_CAST.indexOf(p1.valor) >= 0;
+    var ehNomeDeTipo = p1 && p1.tipo === 'ident';
+    var fecha = p2 && p2.tipo === 'op' && p2.valor === ')';
+    if (ehTipoPrimitivo && fecha) {
+      this.i += 3;
+      return { k: 'cast', tipo: p1.valor, e: this.parseUnario(), linha: a.linha };
+    }
+    // (Nome) seguido de algo que começa uma expressão -> conversão de tipo
+    if (ehNomeDeTipo && fecha && p3 && (p3.tipo === 'ident' ||
+        (p3.tipo === 'kw' && (p3.valor === 'this' || p3.valor === 'new')) ||
+        (p3.tipo === 'op' && p3.valor === '('))) {
       this.i += 3;
       return { k: 'cast', tipo: p1.valor, e: this.parseUnario(), linha: a.linha };
     }
@@ -737,12 +987,28 @@ var NULO = { t: 'null', v: null };
 
 function ehNumero(x) { return x.t === 'int' || x.t === 'double'; }
 
+/* chaves de Dictionary viram string com marca de tipo, para não confundir 1 com "1" */
+function chaveDict(v) {
+  if (v.t === 'string' || v.t === 'char') return 's:' + v.v;
+  if (v.t === 'int' || v.t === 'double') return 'n:' + v.v;
+  if (v.t === 'bool') return 'b:' + v.v;
+  return 'o:' + String(v.v);
+}
+function valorChave(ch) {
+  var marca = ch.slice(0, 2), resto = ch.slice(2);
+  if (marca === 'n:') return V(resto.indexOf('.') >= 0 ? 'double' : 'int', parseFloat(resto));
+  if (marca === 'b:') return V('bool', resto === 'true');
+  return V('string', resto);
+}
+
 function fmtDouble(n) {
   if (!isFinite(n)) return n > 0 ? '∞' : '-∞';
   if (Number.isInteger(n)) return String(n);
   var s = String(parseFloat(n.toPrecision(15)));
   return s;
 }
+
+var INTERP_ATUAL = null; // usado só para chamar ToString() do aluno ao imprimir
 
 function texto(x) {
   if (!x) return '';
@@ -754,6 +1020,20 @@ function texto(x) {
     case 'double': return fmtDouble(x.v);
     case 'null': return '';
     case 'array': case 'list': return '[' + x.v.map(texto).join(', ') + ']';
+    case 'dict': {
+      var partes = [];
+      x.v.forEach(function (val, ch) { partes.push(ch + ': ' + texto(val)); });
+      return '[' + partes.join(', ') + ']';
+    }
+    case 'kv': return '[' + texto(x.v.chave) + ', ' + texto(x.v.valor) + ']';
+    case 'obj': {
+      if (INTERP_ATUAL) {
+        var m = INTERP_ATUAL.acharMetodo(x.v.classe, 'ToString', 0);
+        if (m) return texto(INTERP_ATUAL.executarMetodo(m, x, [], null));
+      }
+      if (x.v.excecao) return x.v.classe + ': ' + texto(x.v.campos.Message || V('string', ''));
+      return x.v.classe;
+    }
   }
   return String(x.v);
 }
@@ -845,8 +1125,252 @@ function Interpretador(opts) {
   this.maxPassos = opts.maxPassos || 400000;
   this.maxLinhas = opts.maxLinhas || 500;
   this.metodos = {};
+  this.tipos = {};
   this.global = new Ambiente(null);
 }
+
+/* ---------- classes e objetos ---------- */
+Interpretador.prototype.acharClasse = function (nome) {
+  return Object.prototype.hasOwnProperty.call(this.tipos, nome) ? this.tipos[nome] : null;
+};
+
+Interpretador.prototype.ehSubtipo = function (nomeClasse, alvo) {
+  if (!nomeClasse) return false;
+  if (nomeClasse === alvo) return true;
+  var c = this.acharClasse(nomeClasse);
+  if (!c) return false;
+  for (var i = 0; i < c.bases.length; i++) {
+    if (this.ehSubtipo(c.bases[i], alvo)) return true;
+  }
+  return false;
+};
+
+/* procura um método subindo a cadeia de herança a partir da classe dinâmica
+   do objeto — é isso que dá o polimorfismo (override) de graça */
+Interpretador.prototype.acharMetodo = function (nomeClasse, nomeMetodo, nArgs, aPartirDe) {
+  var c = this.acharClasse(aPartirDe || nomeClasse);
+  while (c) {
+    var lista = c.metodos[nomeMetodo];
+    if (lista) {
+      var exato = null, qualquer = null;
+      for (var i = 0; i < lista.length; i++) {
+        if (!lista[i].corpo) continue; // abstrato / assinatura de interface
+        if (lista[i].params.length === nArgs) { exato = lista[i]; break; }
+        if (!qualquer) qualquer = lista[i];
+      }
+      var escolhido = exato || (nArgs === null ? qualquer : null);
+      if (escolhido) return { metodo: escolhido, classe: c.nome };
+    }
+    c = c.bases.length ? this.acharClasse(c.bases[0]) : null;
+    if (!c) {
+      // pode herdar de interface listada primeiro; tenta as demais bases
+      break;
+    }
+  }
+  // varre todas as bases (inclusive interfaces com corpo padrão)
+  var raiz = this.acharClasse(aPartirDe || nomeClasse);
+  if (raiz) {
+    for (var b = 0; b < raiz.bases.length; b++) {
+      var achou = this.acharMetodo(raiz.bases[b], nomeMetodo, nArgs);
+      if (achou) return achou;
+    }
+  }
+  return null;
+};
+
+Interpretador.prototype.acharProp = function (nomeClasse, nomeProp) {
+  var c = this.acharClasse(nomeClasse);
+  while (c) {
+    if (Object.prototype.hasOwnProperty.call(c.props, nomeProp)) return { prop: c.props[nomeProp], classe: c.nome };
+    c = c.bases.length ? this.acharClasse(c.bases[0]) : null;
+  }
+  return null;
+};
+
+Interpretador.prototype.acharCampo = function (nomeClasse, nomeCampo) {
+  var c = this.acharClasse(nomeClasse);
+  while (c) {
+    for (var i = 0; i < c.campos.length; i++) if (c.campos[i].nome === nomeCampo) return c.campos[i];
+    c = c.bases.length ? this.acharClasse(c.bases[0]) : null;
+  }
+  return null;
+};
+
+Interpretador.prototype.temMembro = function (nomeClasse, nome) {
+  return !!(this.acharProp(nomeClasse, nome) || this.acharCampo(nomeClasse, nome));
+};
+
+Interpretador.prototype.classesDaCadeia = function (nomeClasse) {
+  var lista = [], c = this.acharClasse(nomeClasse);
+  while (c) { lista.unshift(c); c = c.bases.length ? this.acharClasse(c.bases[0]) : null; }
+  return lista;
+};
+
+Interpretador.prototype.criarInstancia = function (nomeClasse, args, linha, argsNodes, env) {
+  var c = this.acharClasse(nomeClasse);
+  if (!c) erro('O simulador não conhece o tipo "' + nomeClasse + '".', linha);
+  if (c.ehInterface) erro('Não dá para instanciar a interface ' + nomeClasse + ' — instancie uma classe que a implementa.', linha);
+  if (c.abstrata) {
+    lancar('InvalidOperationException',
+      'Não é possível criar um objeto de ' + nomeClasse + ': ela é uma classe abstrata. Instancie uma classe derivada.', linha);
+  }
+
+  var obj = V('obj', { classe: nomeClasse, campos: {} });
+
+  // campos e propriedades automáticas de toda a cadeia, da base para a derivada
+  var cadeia = this.classesDaCadeia(nomeClasse);
+  for (var i = 0; i < cadeia.length; i++) {
+    var cl = cadeia[i];
+    for (var f = 0; f < cl.campos.length; f++) {
+      var campo = cl.campos[f];
+      if (campo.estatico) continue;
+      obj.v.campos[campo.nome] = campo.init
+        ? this.aval(campo.init, this.global)
+        : this.valorPadrao(campo.tipo);
+    }
+    var nomesProps = Object.keys(cl.props);
+    for (var p = 0; p < nomesProps.length; p++) {
+      var pr = cl.props[nomesProps[p]];
+      if (pr.estatico) continue;
+      obj.v.campos['<' + pr.nome + '>'] = pr.init ? this.aval(pr.init, this.global) : this.valorPadrao(pr.tipo);
+    }
+  }
+
+  this.executarConstrutor(nomeClasse, obj, args, linha);
+  return obj;
+};
+
+Interpretador.prototype.executarConstrutor = function (nomeClasse, obj, args, linha) {
+  var c = this.acharClasse(nomeClasse);
+  if (!c) return;
+  var ctor = null;
+  for (var i = 0; i < c.ctores.length; i++) {
+    if (c.ctores[i].params.length === args.length) { ctor = c.ctores[i]; break; }
+  }
+  if (!ctor) {
+    if (c.ctores.length && args.length) {
+      erro('A classe ' + nomeClasse + ' não tem um construtor que receba ' + args.length + ' valor(es).', linha);
+    }
+    // sem construtor declarado: chama o da base, se houver
+    if (c.bases.length) {
+      var baseC = this.acharClasse(c.bases[0]);
+      if (baseC) this.executarConstrutor(baseC.nome, obj, [], linha);
+    }
+    return;
+  }
+
+  var env = new Ambiente(this.global);
+  env.declarar('this', obj);
+  env.declarar('__classe__', V('string', nomeClasse));
+  for (var q = 0; q < ctor.params.length; q++) {
+    var pp = ctor.params[q];
+    env.declarar(pp.nome, pp.tipo ? converterParaTipo(pp.tipo.nome, args[q] || NULO, linha) : (args[q] || NULO));
+  }
+
+  if (ctor.encadeia) {
+    var argsEnc = ctor.encadeia.args.map(function (a) { return this.aval(a, env); }, this);
+    if (ctor.encadeia.alvo === 'base' && c.bases.length) this.executarConstrutor(c.bases[0], obj, argsEnc, linha);
+    else if (ctor.encadeia.alvo === 'this') this.executarConstrutor(nomeClasse, obj, argsEnc, linha);
+  } else if (c.bases.length) {
+    var b = this.acharClasse(c.bases[0]);
+    if (b && !b.ehInterface) this.executarConstrutor(b.nome, obj, [], linha);
+  }
+
+  this.execBloco(ctor.corpo, env);
+};
+
+Interpretador.prototype.executarMetodo = function (info, obj, args, linha) {
+  if (this.profundidade === undefined) this.profundidade = 0;
+  if (++this.profundidade > 200) { this.profundidade--; erro('Chamadas de método aninhadas demais (recursão infinita?).', linha); }
+  var env = new Ambiente(this.global);
+  if (obj) env.declarar('this', obj);
+  env.declarar('__classe__', V('string', info.classe));
+  for (var i = 0; i < info.metodo.params.length; i++) {
+    var p = info.metodo.params[i];
+    var v = args[i] === undefined ? NULO : args[i];
+    env.declarar(p.nome, p.tipo ? converterParaTipo(p.tipo.nome, v, linha) : v);
+  }
+  var r = this.execBloco(info.metodo.corpo, env);
+  this.profundidade--;
+  if (r && r.sinal === 'retorno') return r.valor;
+  return NULO;
+};
+
+/* leitura de membro de objeto: propriedade -> campo de apoio -> campo comum */
+Interpretador.prototype.lerMembroObj = function (obj, nome, linha) {
+  var dados = obj.v;
+  var pi = this.acharProp(dados.classe, nome);
+  if (pi) {
+    if (pi.prop.auto || !pi.prop.get) return dados.campos['<' + nome + '>'];
+    return this.executarMetodo({ metodo: { params: [], corpo: pi.prop.get }, classe: pi.classe }, obj, [], linha);
+  }
+  if (Object.prototype.hasOwnProperty.call(dados.campos, nome)) return dados.campos[nome];
+  var est = this.lerEstatico(dados.classe, nome);
+  if (est !== undefined) return est;
+  erro('O objeto da classe ' + dados.classe + ' não tem "' + nome + '".', linha);
+};
+
+Interpretador.prototype.gravarMembroObj = function (obj, nome, val, linha) {
+  var dados = obj.v;
+  var pi = this.acharProp(dados.classe, nome);
+  if (pi) {
+    if (pi.prop.auto || !pi.prop.set) {
+      if (pi.prop.temSet === false && !pi.prop.auto) {
+        erro('A propriedade ' + nome + ' é somente leitura.', linha);
+      }
+      dados.campos['<' + nome + '>'] = converterParaTipo(pi.prop.tipo ? pi.prop.tipo.nome : null, val, linha);
+      return;
+    }
+    var env = new Ambiente(this.global);
+    env.declarar('this', obj);
+    env.declarar('__classe__', V('string', pi.classe));
+    env.declarar('value', converterParaTipo(pi.prop.tipo ? pi.prop.tipo.nome : null, val, linha));
+    this.execBloco(pi.prop.set, env);
+    return;
+  }
+  if (Object.prototype.hasOwnProperty.call(dados.campos, nome)) {
+    var campo = this.acharCampo(dados.classe, nome);
+    dados.campos[nome] = campo && campo.tipo ? converterParaTipo(campo.tipo.nome, val, linha) : val;
+    return;
+  }
+  erro('O objeto da classe ' + dados.classe + ' não tem "' + nome + '" para receber valor.', linha);
+};
+
+/* membros estáticos (campos e propriedades declarados como static) */
+Interpretador.prototype.lerEstatico = function (nomeClasse, nome) {
+  var cadeia = this.classesDaCadeia(nomeClasse);
+  for (var i = cadeia.length - 1; i >= 0; i--) {
+    var c = cadeia[i];
+    if (Object.prototype.hasOwnProperty.call(c.estaticos, nome)) return c.estaticos[nome];
+    for (var f = 0; f < c.campos.length; f++) {
+      if (c.campos[f].nome === nome && c.campos[f].estatico) {
+        c.estaticos[nome] = c.campos[f].init ? this.aval(c.campos[f].init, this.global) : this.valorPadrao(c.campos[f].tipo);
+        return c.estaticos[nome];
+      }
+    }
+    if (Object.prototype.hasOwnProperty.call(c.props, nome) && c.props[nome].estatico) {
+      c.estaticos[nome] = c.props[nome].init ? this.aval(c.props[nome].init, this.global) : this.valorPadrao(c.props[nome].tipo);
+      return c.estaticos[nome];
+    }
+  }
+  return undefined;
+};
+Interpretador.prototype.gravarEstatico = function (nomeClasse, nome, val) {
+  var cadeia = this.classesDaCadeia(nomeClasse);
+  for (var i = cadeia.length - 1; i >= 0; i--) {
+    var c = cadeia[i];
+    var temCampo = c.campos.some(function (f) { return f.nome === nome && f.estatico; });
+    var temProp = Object.prototype.hasOwnProperty.call(c.props, nome) && c.props[nome].estatico;
+    if (temCampo || temProp || Object.prototype.hasOwnProperty.call(c.estaticos, nome)) { c.estaticos[nome] = val; return true; }
+  }
+  return false;
+};
+
+/* ---------- exceções ---------- */
+Interpretador.prototype.criarExcecao = function (tipo, mensagem, linha) {
+  var obj = V('obj', { classe: tipo, campos: { Message: V('string', mensagem) }, excecao: true });
+  return obj;
+};
 
 Interpretador.prototype.tick = function (linha) {
   if (++this.passos > this.maxPassos) {
@@ -873,6 +1397,8 @@ Interpretador.prototype.saidaFinal = function () {
 
 Interpretador.prototype.rodar = function (prog) {
   this.metodos = prog.metodos;
+  this.tipos = prog.tipos || {};
+  INTERP_ATUAL = this;
   var env = new Ambiente(this.global);
   if (this.metodos['Main']) {
     // executa também as declarações soltas (campos estáticos) antes
@@ -954,7 +1480,12 @@ Interpretador.prototype.exec = function (s, env) {
       var itens;
       if (col.t === 'array' || col.t === 'list') itens = col.v;
       else if (col.t === 'string') itens = col.v.split('').map(function (c) { return V('char', c); });
-      else erro('O foreach precisa percorrer uma lista, um array ou um texto.', s.linha);
+      else if (col.t === 'dict') {
+        itens = [];
+        col.v.forEach(function (val, ch) { itens.push(V('kv', { chave: valorChave(ch), valor: val })); });
+      }
+      else if (col.t === 'null') lancar('NullReferenceException', 'O foreach tentou percorrer uma coleção nula.', s.linha);
+      else erro('O foreach precisa percorrer uma lista, um array, um dicionário ou um texto.', s.linha);
       for (var j = 0; j < itens.length; j++) {
         this.tick(s.linha);
         var envF = new Ambiente(env);
@@ -989,6 +1520,46 @@ Interpretador.prototype.exec = function (s, env) {
     case 'pare': return PARE;
     case 'continue': return SEGUIR;
     case 'retorne': return new Retorno(s.e ? this.aval(s.e, env) : NULO);
+
+    case 'lancar': {
+      var alvo = s.e ? this.aval(s.e, env) : null;
+      if (alvo && alvo.t === 'obj') {
+        var ex = new CsExcecao(alvo.v.classe, texto(alvo.v.campos.Message || V('string', '')), s.linha);
+        ex.valor = alvo;
+        throw ex;
+      }
+      lancar('Exception', alvo ? texto(alvo) : '', s.linha);
+      break;
+    }
+
+    case 'tentar': {
+      var resultado = null, pendente = null;
+      try {
+        resultado = this.execBloco(s.corpo, new Ambiente(env));
+      } catch (e) {
+        if (!(e instanceof CsExcecao || e.name === 'CsExcecao')) { pendente = e; }
+        else {
+          var tratou = false;
+          for (var ci = 0; ci < s.capturas.length && !tratou; ci++) {
+            var cap = s.capturas[ci];
+            if (!excecaoCompativel(e.tipo, cap.tipo)) continue;
+            tratou = true;
+            var envC = new Ambiente(env);
+            if (cap.nome) envC.declarar(cap.nome, e.valor || this.criarExcecao(e.tipo, e.mensagem, s.linha));
+            try {
+              resultado = this.execBloco(cap.corpo, envC);
+            } catch (e2) { pendente = e2; }
+          }
+          if (!tratou) pendente = e;
+        }
+      }
+      if (s.finalmente) {
+        var rf = this.execBloco(s.finalmente, new Ambiente(env));
+        if (rf) resultado = rf;
+      }
+      if (pendente) throw pendente;
+      return resultado;
+    }
   }
   erro('Comando não suportado pelo simulador.', s.linha);
 };
@@ -1035,7 +1606,19 @@ Interpretador.prototype.aval = function (e, env) {
 
     case 'id': {
       if (env.existe(e.nome)) return env.obter(e.nome);
+      // dentro de um método/construtor, um nome solto pode ser membro do próprio objeto
+      if (env.existe('this')) {
+        var esteId = env.obter('this');
+        if (esteId.t === 'obj' && this.temMembro(esteId.v.classe, e.nome)) {
+          return this.lerMembroObj(esteId, e.nome, e.linha);
+        }
+      }
+      if (env.existe('__classe__')) {
+        var estId = this.lerEstatico(env.obter('__classe__').v, e.nome);
+        if (estId !== undefined) return estId;
+      }
       if (this.metodos[e.nome]) return { t: 'metodo', v: e.nome };
+      if (this.acharClasse(e.nome)) return { t: 'classe', v: e.nome };
       if (['Console', 'Math', 'Convert', 'String'].indexOf(e.nome) >= 0 ||
           TIPOS_CAST.indexOf(e.nome) >= 0) return { t: 'classe', v: e.nome };
       erro('A variável "' + e.nome + '" não foi declarada antes de ser usada.', e.linha);
@@ -1076,6 +1659,10 @@ Interpretador.prototype.aval = function (e, env) {
       if (TIPOS_NUM_DEC.indexOf(e.tipo) >= 0) return V('double', val.v);
       if (e.tipo === 'char' && ehNumero(val)) return V('char', String.fromCharCode(val.v));
       if (e.tipo === 'string') return V('string', texto(val));
+      if (val.t === 'obj' && (this.acharClasse(e.tipo) || ehTipoExcecao(e.tipo))) {
+        if (this.ehSubtipo(val.v.classe, e.tipo) || excecaoCompativel(val.v.classe, e.tipo)) return val;
+        lancar('InvalidCastException', 'Não é possível converter um ' + val.v.classe + ' em ' + e.tipo + '.', e.linha);
+      }
       return val;
     }
 
@@ -1104,13 +1691,22 @@ Interpretador.prototype.aval = function (e, env) {
     case 'indice': {
       var obj = this.aval(e.obj, env);
       var idx = this.aval(e.idx, env);
+      if (obj.t === 'dict') {
+        var ch = chaveDict(idx);
+        if (!obj.v.has(ch)) {
+          lancar('KeyNotFoundException', 'A chave "' + texto(idx) + '" não existe no dicionário.', e.linha);
+        }
+        return obj.v.get(ch);
+      }
       if (obj.t === 'string') {
         if (idx.v < 0 || idx.v >= obj.v.length) erro('Índice ' + idx.v + ' fora dos limites do texto.', e.linha);
         return V('char', obj.v.charAt(idx.v));
       }
-      if (obj.t !== 'array' && obj.t !== 'list') erro('Só dá para usar [ ] em arrays, listas ou textos.', e.linha);
+      if (obj.t === 'null') lancar('NullReferenceException', 'Tentou usar [ ] em uma coleção nula.', e.linha);
+      if (obj.t !== 'array' && obj.t !== 'list') erro('Só dá para usar [ ] em arrays, listas, dicionários ou textos.', e.linha);
       if (idx.v < 0 || idx.v >= obj.v.length) {
-        erro('Índice ' + idx.v + ' fora dos limites (a coleção tem ' + obj.v.length + ' posições, de 0 a ' + (obj.v.length - 1) + ').', e.linha);
+        lancar('IndexOutOfRangeException',
+          'Índice ' + idx.v + ' fora dos limites (a coleção tem ' + obj.v.length + ' posições, de 0 a ' + (obj.v.length - 1) + ').', e.linha);
       }
       return obj.v[idx.v];
     }
@@ -1132,14 +1728,51 @@ Interpretador.prototype.aval = function (e, env) {
 
     case 'novoObj': {
       var nomeT = e.tipo.nome;
-      if (nomeT === 'List') {
+      if (nomeT === 'List' || nomeT === 'Queue' || nomeT === 'Stack') {
         var lst = [];
         if (e.init) lst = e.init.itens.map(function (x) { return this.aval(x, env); }, this);
         return V('list', lst);
       }
-      if (nomeT === 'Random') return V('random', {});
-      erro('O simulador não conhece o tipo "' + nomeT + '". Use os tipos básicos, arrays ou List<T>.', e.linha);
+      if (nomeT === 'Dictionary') {
+        var mapa = new Map();
+        if (e.init) {
+          e.init.itens.forEach(function (par) {
+            if (par.k === 'listaInit' && par.itens.length === 2) {
+              mapa.set(chaveDict(this.aval(par.itens[0], env)), this.aval(par.itens[1], env));
+            }
+          }, this);
+        }
+        return V('dict', mapa);
+      }
+      if (ehTipoExcecao(nomeT)) {
+        var msg = e.args.length ? texto(this.aval(e.args[0].e, env)) : '';
+        return this.criarExcecao(nomeT, msg, e.linha);
+      }
+      if (this.acharClasse(nomeT)) {
+        var argsN = e.args.map(function (a) { return this.aval(a.e, env); }, this);
+        return this.criarInstancia(nomeT, argsN, e.linha);
+      }
+      erro('O simulador não conhece o tipo "' + nomeT + '". Use os tipos básicos, arrays, List<T>, Dictionary<K,V> ou uma classe criada por você.', e.linha);
       break;
+    }
+
+    case 'ehTipo': {
+      var vT = this.aval(e.e, env);
+      var ok = false;
+      if (vT.t === 'obj') ok = this.ehSubtipo(vT.v.classe, e.tipo) || excecaoCompativel(vT.v.classe, e.tipo);
+      else if (vT.t === 'int') ok = (TIPOS_NUM_INT.indexOf(e.tipo) >= 0);
+      else if (vT.t === 'double') ok = (TIPOS_NUM_DEC.indexOf(e.tipo) >= 0);
+      else if (vT.t === 'string') ok = (e.tipo === 'string');
+      else if (vT.t === 'bool') ok = (e.tipo === 'bool');
+      if (ok && e.apelido) env.declarar(e.apelido, vT);
+      return V('bool', ok);
+    }
+
+    case 'comoTipo': {
+      var vA = this.aval(e.e, env);
+      if (vA.t === 'obj' && this.ehSubtipo(vA.v.classe, e.tipo)) return vA;
+      if (vA.t === 'string' && e.tipo === 'string') return vA;
+      return NULO;
     }
   }
   erro('Expressão não suportada pelo simulador.', e.linha);
@@ -1155,18 +1788,36 @@ Interpretador.prototype.lerAlvo = function (alvo, env) {
 
 Interpretador.prototype.gravarAlvo = function (alvo, val, env) {
   if (alvo.k === 'id') {
-    if (!env.atribuir(alvo.nome, val)) {
-      erro('A variável "' + alvo.nome + '" não foi declarada antes de receber um valor.', alvo.linha);
+    if (env.atribuir(alvo.nome, val)) return;
+    if (env.existe('this')) {
+      var esteG = env.obter('this');
+      if (esteG.t === 'obj' && this.temMembro(esteG.v.classe, alvo.nome)) {
+        this.gravarMembroObj(esteG, alvo.nome, val, alvo.linha);
+        return;
+      }
     }
-    return;
+    if (env.existe('__classe__') && this.gravarEstatico(env.obter('__classe__').v, alvo.nome, val)) return;
+    erro('A variável "' + alvo.nome + '" não foi declarada antes de receber um valor.', alvo.linha);
   }
   if (alvo.k === 'indice') {
     var obj = this.aval(alvo.obj, env);
     var idx = this.aval(alvo.idx, env);
-    if (obj.t !== 'array' && obj.t !== 'list') erro('Só dá para atribuir com [ ] em arrays ou listas.', alvo.linha);
-    if (idx.v < 0 || idx.v >= obj.v.length) erro('Índice ' + idx.v + ' fora dos limites da coleção.', alvo.linha);
+    if (obj.t === 'dict') { obj.v.set(chaveDict(idx), val); return; }
+    if (obj.t !== 'array' && obj.t !== 'list') erro('Só dá para atribuir com [ ] em arrays, listas ou dicionários.', alvo.linha);
+    if (idx.v < 0 || idx.v >= obj.v.length) {
+      lancar('IndexOutOfRangeException', 'Índice ' + idx.v + ' fora dos limites da coleção.', alvo.linha);
+    }
     obj.v[idx.v] = val;
     return;
+  }
+  if (alvo.k === 'membro') {
+    var dono = this.aval(alvo.obj, env);
+    if (dono.t === 'obj') { this.gravarMembroObj(dono, alvo.nome, val, alvo.linha); return; }
+    if (dono.t === 'classe' || dono.t === 'estatico') {
+      var nomeCl = dono.t === 'classe' ? dono.v : String(dono.v).split('.')[0];
+      if (this.gravarEstatico(nomeCl, alvo.nome, val)) return;
+    }
+    erro('Não dá para atribuir um valor a "' + alvo.nome + '" aqui.', alvo.linha);
   }
   erro('Não dá para atribuir um valor a esta expressão.', alvo.linha);
 };
@@ -1176,6 +1827,11 @@ Interpretador.prototype.avalMembro = function (e, env) {
   // classes estáticas conhecidas
   if (e.obj.k === 'id') {
     var n = e.obj.nome;
+    if (!env.existe(n) && this.acharClasse(n)) {
+      var estat = this.lerEstatico(n, e.nome);
+      if (estat !== undefined) return estat;
+      return { t: 'classe', v: n };
+    }
     if (!env.existe(n)) {
       if (n === 'Math') {
         if (e.nome === 'PI') return V('double', Math.PI);
@@ -1197,6 +1853,19 @@ Interpretador.prototype.avalMembro = function (e, env) {
   if (obj.t === 'array' && e.nome === 'Length') return V('int', obj.v.length);
   if (obj.t === 'list' && (e.nome === 'Count' || e.nome === 'Length')) return V('int', obj.v.length);
   if (obj.t === 'string' && e.nome === 'Length') return V('int', obj.v.length);
+  if (obj.t === 'dict') {
+    if (e.nome === 'Count') return V('int', obj.v.size);
+    if (e.nome === 'Keys') { var ks = []; obj.v.forEach(function (v2, k2) { ks.push(valorChave(k2)); }); return V('list', ks); }
+    if (e.nome === 'Values') { var vs2 = []; obj.v.forEach(function (v2) { vs2.push(v2); }); return V('list', vs2); }
+  }
+  if (obj.t === 'kv') {
+    if (e.nome === 'Key') return obj.v.chave;
+    if (e.nome === 'Value') return obj.v.valor;
+  }
+  if (obj.t === 'obj') return this.lerMembroObj(obj, e.nome, e.linha);
+  if (obj.t === 'null') {
+    lancar('NullReferenceException', 'Tentou usar "' + e.nome + '" em uma variável que está nula (nenhum objeto foi criado).', e.linha);
+  }
   return { t: 'metodoInstancia', v: { obj: obj, nome: e.nome } };
 };
 
@@ -1330,15 +1999,56 @@ Interpretador.prototype.avalChamada = function (e, env) {
     }
   }
 
-  // método de instância (string, array, list)
+  // base.Metodo(...) -> começa a busca na classe-mãe da classe que está executando
+  if (alvo.k === 'membro' && alvo.obj.k === 'id' && alvo.obj.nome === 'base' && env.existe('this')) {
+    var esteObj = env.obter('this');
+    var classeAtual = env.existe('__classe__') ? env.obter('__classe__').v : esteObj.v.classe;
+    var decl = this.acharClasse(classeAtual);
+    var nomeBase = decl && decl.bases.length ? decl.bases[0] : null;
+    var vals = args();
+    var achadoBase = nomeBase ? this.acharMetodo(nomeBase, alvo.nome, vals.length, nomeBase) : null;
+    if (!achadoBase) erro('A classe-mãe não tem o método "' + alvo.nome + '".', linha);
+    return this.executarMetodo(achadoBase, esteObj, vals, linha);
+  }
+
+  // método estático de uma classe do aluno:  Classe.Metodo(...)
+  if (alvo.k === 'membro' && alvo.obj.k === 'id' && !env.existe(alvo.obj.nome) && this.acharClasse(alvo.obj.nome)) {
+    var valsE = args();
+    var estatico = this.acharMetodo(alvo.obj.nome, alvo.nome, valsE.length);
+    if (estatico) return this.executarMetodo(estatico, null, valsE, linha);
+  }
+
+  // método de instância
   if (alvo.k === 'membro') {
     var obj = this.aval(alvo.obj, env);
+    if (obj.t === 'obj') {
+      var vals2 = args();
+      var achado = this.acharMetodo(obj.v.classe, alvo.nome, vals2.length);
+      if (achado) return this.executarMetodo(achado, obj, vals2, linha);
+      if (alvo.nome === 'ToString') return V('string', obj.v.classe);
+      if (alvo.nome === 'Equals') return V('bool', vals2[0] === obj);
+      erro('A classe ' + obj.v.classe + ' não tem o método "' + alvo.nome + '".', linha);
+    }
+    if (obj.t === 'null') {
+      lancar('NullReferenceException', 'Tentou chamar "' + alvo.nome + '" em uma variável nula (nenhum objeto foi criado).', linha);
+    }
     return this.metodoInstancia(obj, alvo.nome, args(), linha, alvo, env);
   }
 
-  // método definido pelo aluno
-  if (alvo.k === 'id' && this.metodos[alvo.nome]) {
-    return this.chamarMetodo(this.metodos[alvo.nome], args(), linha);
+  // método sem qualificar: primeiro os do aluno, depois um método da própria classe
+  if (alvo.k === 'id') {
+    if (this.metodos[alvo.nome]) return this.chamarMetodo(this.metodos[alvo.nome], args(), linha);
+    if (env.existe('this')) {
+      var esteO = env.obter('this');
+      var valsL = args();
+      var achadoL = this.acharMetodo(esteO.v.classe, alvo.nome, valsL.length);
+      if (achadoL) return this.executarMetodo(achadoL, esteO, valsL, linha);
+    }
+    if (env.existe('__classe__')) {
+      var valsS = args();
+      var achadoS = this.acharMetodo(env.obter('__classe__').v, alvo.nome, valsS.length);
+      if (achadoS) return this.executarMetodo(achadoS, null, valsS, linha);
+    }
   }
 
   erro('Não sei executar a chamada "' + (alvo.nome || 'esta função') + '".', linha);
@@ -1402,6 +2112,24 @@ Interpretador.prototype.metodoInstancia = function (obj, nome, vals, linha) {
     }
     erro('O simulador não conhece o método List.' + nome + '.', linha);
   }
+  if (obj.t === 'dict') {
+    switch (nome) {
+      case 'Add': {
+        var ch = chaveDict(vals[0]);
+        if (obj.v.has(ch)) lancar('ArgumentException', 'A chave "' + texto(vals[0]) + '" já existe no dicionário.', linha);
+        obj.v.set(ch, vals[1]); return NULO;
+      }
+      case 'ContainsKey': return V('bool', obj.v.has(chaveDict(vals[0])));
+      case 'ContainsValue': {
+        var achou = false;
+        obj.v.forEach(function (v2) { if (iguais(v2, vals[0])) achou = true; });
+        return V('bool', achou);
+      }
+      case 'Remove': { var c2 = chaveDict(vals[0]); var tinha = obj.v.has(c2); obj.v.delete(c2); return V('bool', tinha); }
+      case 'Clear': obj.v.clear(); return NULO;
+    }
+    erro('O simulador não conhece o método Dictionary.' + nome + '.', linha);
+  }
   if (obj.t === 'array') {
     if (nome === 'ToString') return V('string', texto(obj));
     erro('O simulador não conhece o método de array "' + nome + '".', linha);
@@ -1458,13 +2186,13 @@ function binario(op, a, b, linha) {
     if (op === '*') return V(inteiro ? 'int' : 'double', an.v * bn.v);
     if (op === '/') {
       if (bn.v === 0) {
-        if (inteiro) erro('Divisão por zero.', linha);
+        if (inteiro) lancar('DivideByZeroException', 'Tentativa de dividir por zero.', linha);
         return V('double', an.v / bn.v);
       }
       return inteiro ? V('int', Math.trunc(an.v / bn.v)) : V('double', an.v / bn.v);
     }
     if (op === '%') {
-      if (bn.v === 0) erro('Resto de divisão por zero.', linha);
+      if (bn.v === 0) lancar('DivideByZeroException', 'Tentativa de dividir por zero.', linha);
       return V(inteiro ? 'int' : 'double', an.v % bn.v);
     }
   }
@@ -1478,7 +2206,7 @@ function paraInteiro(v, linha) {
   if (v.t === 'null') erro('O programa tentou converter para número um valor vazio — provavelmente faltou uma entrada (Console.ReadLine) ou ela veio vazia.', linha);
   var s = String(v.v).trim().replace(',', '.');
   var n = parseFloat(s);
-  if (isNaN(n)) erro('Não foi possível converter "' + v.v + '" para número inteiro.', linha);
+  if (isNaN(n)) lancar('FormatException', 'O texto "' + v.v + '" não está num formato de número inteiro.', linha);
   return Math.trunc(n);
 }
 function paraDecimal(v, linha) {
@@ -1487,7 +2215,7 @@ function paraDecimal(v, linha) {
   if (v.t === 'null') erro('O programa tentou converter para número um valor vazio — provavelmente faltou uma entrada (Console.ReadLine) ou ela veio vazia.', linha);
   var s = String(v.v).trim().replace(',', '.');
   var n = parseFloat(s);
-  if (isNaN(n)) erro('Não foi possível converter "' + v.v + '" para número decimal.', linha);
+  if (isNaN(n)) lancar('FormatException', 'O texto "' + v.v + '" não está num formato de número decimal.', linha);
   return n;
 }
 function paraBool(v, linha) {
@@ -1522,7 +2250,24 @@ var ROTULOS_RECURSOS = {
   'estrutura:aninhado': 'usar um laço dentro de outro',
   'estrutura:interpolacao': 'montar o texto com interpolação $"..."',
   'estrutura:conversao': 'converter texto em número (Parse/Convert)',
-  'estrutura:acumulador': 'acumular um valor dentro do laço (ex: soma += x)'
+  'estrutura:acumulador': 'acumular um valor dentro do laço (ex: soma += x)',
+  'estrutura:dicionario': 'usar um Dictionary<chave, valor>',
+  'estrutura:metodoParam': 'criar um método que recebe parâmetros',
+  'estrutura:metodoRetorno': 'criar um método que devolve um valor (return)',
+  'estrutura:classe': 'criar uma classe própria',
+  'estrutura:objeto': 'instanciar objetos com new',
+  'estrutura:construtor': 'criar um construtor para a classe',
+  'estrutura:propriedade': 'usar propriedades (get/set)',
+  'estrutura:encapsulamento': 'proteger o dado com private + propriedade validada',
+  'estrutura:heranca': 'usar herança entre classes',
+  'estrutura:virtual': 'marcar um método como virtual na classe-mãe',
+  'estrutura:polimorfismo': 'sobrescrever o método com override',
+  'estrutura:abstrata': 'criar uma classe abstrata',
+  'estrutura:interface': 'criar e implementar uma interface',
+  'estrutura:excecao': 'proteger o trecho com try/catch',
+  'estrutura:finally': 'usar o bloco finally',
+  'estrutura:lancar': 'lançar uma exceção com throw',
+  'estrutura:base': 'chamar a classe-mãe com base'
 };
 
 function analisarAst(prog) {
@@ -1612,9 +2357,12 @@ function analisarAst(prog) {
       case 'novoArranjo': marcar('estrutura:array'); if (e.init) e.init.itens.forEach(visitarE); visitarE(e.tamanho); return;
       case 'novoObj':
         if (e.tipo && e.tipo.nome === 'List') marcar('estrutura:list');
+        if (e.tipo && e.tipo.nome === 'Dictionary') marcar('estrutura:dicionario');
+        if (e.tipo && prog.tipos && prog.tipos[e.tipo.nome]) marcar('estrutura:objeto');
         if (e.init) e.init.itens.forEach(visitarE);
         e.args.forEach(function (a) { visitarE(a.e); });
         return;
+      case 'ehTipo': case 'comoTipo': visitarE(e.e); return;
       case 'chamada': {
         var alvo = e.alvo;
         if (alvo && alvo.k === 'membro' && alvo.obj.k === 'id') {
@@ -1622,6 +2370,7 @@ function analisarAst(prog) {
           if (cl === 'Console' && alvo.nome === 'ReadLine') marcar('estrutura:leitura');
           if (cl === 'Console' && (alvo.nome === 'WriteLine' || alvo.nome === 'Write')) marcar('estrutura:saida');
           if (alvo.nome === 'Parse' || alvo.nome === 'TryParse' || cl === 'Convert') marcar('estrutura:conversao');
+          if (cl === 'base') marcar('estrutura:base');
         }
         visitarE(alvo);
         e.args.forEach(function (a) { visitarE(a.e); });
@@ -1676,16 +2425,89 @@ function analisarAst(prog) {
         visitarE(s.disc);
         s.casos.forEach(function (c) { c.rotulos.forEach(visitarE); c.corpo.forEach(visitarS); });
         return;
-      case 'retorne': visitarE(s.e); return;
+      case 'retorne': if (s.e) marcar('__retorno__'); visitarE(s.e); return;
+      case 'lancar': marcar('estrutura:lancar'); visitarE(s.e); return;
+      case 'tentar':
+        marcar('estrutura:excecao');
+        if (s.finalmente) marcar('estrutura:finally');
+        s.corpo.forEach(visitarS);
+        s.capturas.forEach(function (c) { c.corpo.forEach(visitarS); });
+        if (s.finalmente) s.finalmente.forEach(visitarS);
+        return;
     }
   }
 
+  function visitarMetodo(m, dentroDeClasse) {
+    if (!m.corpo) return;
+    if (m.params && m.params.length) marcar('estrutura:metodoParam');
+    var tinhaRetorno = rec['__retorno__'];
+    delete rec['__retorno__'];
+    m.corpo.forEach(visitarS);
+    if (rec['__retorno__']) marcar('estrutura:metodoRetorno');
+    delete rec['__retorno__'];
+    if (tinhaRetorno) rec['__retorno__'] = true;
+  }
+
   prog.topo.forEach(visitarS);
+
   var nomes = Object.keys(prog.metodos);
   nomes.forEach(function (n) {
     if (n !== 'Main') marcar('estrutura:metodo');
-    prog.metodos[n].corpo.forEach(visitarS);
+    visitarMetodo(prog.metodos[n]);
   });
+
+  var tipos = prog.tipos || {};
+  Object.keys(tipos).forEach(function (nomeT) {
+    var c = tipos[nomeT];
+    if (c.ehInterface) { marcar('estrutura:interface'); }
+    else if (nomeT !== 'Program') { marcar('estrutura:classe'); }
+    if (c.abstrata) marcar('estrutura:abstrata');
+    if (c.bases.length) {
+      c.bases.forEach(function (b) {
+        if (tipos[b] && tipos[b].ehInterface) marcar('estrutura:interface');
+        else if (tipos[b]) marcar('estrutura:heranca');
+      });
+    }
+    if (c.ctores.length) marcar('estrutura:construtor');
+    var nomesProps = Object.keys(c.props);
+    if (nomesProps.length) marcar('estrutura:propriedade');
+    // encapsulamento: campo privado protegido por propriedade com set validado
+    var temCampoPrivado = c.campos.some(function (f) { return !f.estatico; });
+    var temSetComCorpo = nomesProps.some(function (p) { return c.props[p].set && c.props[p].set.length; });
+    if (temSetComCorpo && temCampoPrivado) marcar('estrutura:encapsulamento');
+    nomesProps.forEach(function (p) {
+      if (c.props[p].get) c.props[p].get.forEach(visitarS);
+      if (c.props[p].set) c.props[p].set.forEach(visitarS);
+    });
+    c.campos.forEach(function (f) { visitarE(f.init); });
+    c.ctores.forEach(function (ct) {
+      if (ct.encadeia && ct.encadeia.alvo === 'base') marcar('estrutura:base');
+      ct.corpo.forEach(visitarS);
+    });
+    Object.keys(c.metodos).forEach(function (nm) {
+      c.metodos[nm].forEach(function (m) {
+        if (m.abstrato && !m.corpo && !c.ehInterface) marcar('estrutura:abstrata');
+        if (m.virtual) marcar('estrutura:virtual');
+        if (nomeT !== 'Program' && m.corpo) marcar('estrutura:metodo');
+        visitarMetodo(m, true);
+      });
+    });
+  });
+
+  // polimorfismo: um método com o mesmo nome definido na mãe e reescrito na filha
+  Object.keys(tipos).forEach(function (nomeT) {
+    var c = tipos[nomeT];
+    if (!c.bases.length) return;
+    Object.keys(c.metodos).forEach(function (nm) {
+      var base = tipos[c.bases[0]];
+      while (base) {
+        if (base.metodos[nm]) { marcar('estrutura:polimorfismo'); return; }
+        base = base.bases.length ? tipos[base.bases[0]] : null;
+      }
+    });
+  });
+
+  delete rec['__retorno__'];
   return rec;
 }
 
@@ -1704,6 +2526,14 @@ function executar(codigo, opts) {
     interp.rodar(prog);
     return { ok: true, saida: interp.saidaFinal(), linhas: interp.linhasSaida.slice() };
   } catch (e) {
+    if (e instanceof CsExcecao || e.name === 'CsExcecao') {
+      return {
+        ok: false,
+        erro: 'Exceção não tratada (' + e.tipo + '): ' + e.mensagem +
+              ' — o programa parou aqui. Você pode proteger esse trecho com try/catch.',
+        linha: e.linha
+      };
+    }
     if (e instanceof CsErro || e.name === 'CsErro') {
       return { ok: false, erro: e.message, linha: e.linha };
     }
@@ -1720,7 +2550,7 @@ function analisar(codigo) {
     return { ok: true, recursos: analisarAst(prog) };
   } catch (e) {
     if (e instanceof CsErro || e.name === 'CsErro') return { ok: false, erro: e.message, linha: e.linha };
-    return { ok: false, erro: 'Erro inesperado ao analisar o código.', linha: null };
+    return { ok: false, erro: 'Erro inesperado ao analisar o código: ' + (e && e.message ? e.message : e), linha: null };
   }
 }
 
